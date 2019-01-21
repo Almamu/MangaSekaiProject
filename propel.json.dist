@@ -1,0 +1,28 @@
+{
+    "propel": {
+        "paths": {
+            "phpDir": "src",
+            "phpConfDir": "config"
+        },
+        "database": {
+            "connections": {
+                "default": {
+                    "adapter": "mysql",
+                    "classname": "Propel\\Runtime\\Connection\\ConnectionWrapper",
+                    "dsn": "mysql:host=plesk.steins.glintdg.com;dbname=manga",
+                    "user": "manga",
+                    "password": "6testpwd_",
+                    "attributes": []
+                }
+            }
+        },
+        "runtime": {
+            "defaultConnection": "default",
+            "connections": ["default"]
+        },
+        "generator": {
+            "defaultConnection": "default",
+            "connections": ["default"]
+        }
+    }
+}
