@@ -1,0 +1,23 @@
+{
+    "name": "almamu/mangasekai",
+    "description": "A self-hosted manga reader",
+    "type": "project",
+    "require": {
+        "php": ">7.2",
+        "propel/propel": "^2.0@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0@dev"
+    },
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Alexis Maiquez",
+            "email": "almamu@almamu.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "classmap": ["src/"]
+    }
+}
