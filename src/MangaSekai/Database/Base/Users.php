@@ -4,13 +4,21 @@ namespace MangaSekai\Database\Base;
 
 use \Exception;
 use \PDO;
+use MangaSekai\Database\ChapterTracker as ChildChapterTracker;
+use MangaSekai\Database\ChapterTrackerQuery as ChildChapterTrackerQuery;
+use MangaSekai\Database\SeriesTracker as ChildSeriesTracker;
+use MangaSekai\Database\SeriesTrackerQuery as ChildSeriesTrackerQuery;
+use MangaSekai\Database\Users as ChildUsers;
 use MangaSekai\Database\UsersQuery as ChildUsersQuery;
+use MangaSekai\Database\Map\ChapterTrackerTableMap;
+use MangaSekai\Database\Map\SeriesTrackerTableMap;
 use MangaSekai\Database\Map\UsersTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -81,12 +89,36 @@ abstract class Users implements ActiveRecordInterface
     protected $password;
 
     /**
+     * @var        ObjectCollection|ChildChapterTracker[] Collection to store aggregation of ChildChapterTracker objects.
+     */
+    protected $collChapterTrackers;
+    protected $collChapterTrackersPartial;
+
+    /**
+     * @var        ObjectCollection|ChildSeriesTracker[] Collection to store aggregation of ChildSeriesTracker objects.
+     */
+    protected $collSeriesTrackers;
+    protected $collSeriesTrackersPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
      * @var boolean
      */
     protected $alreadyInSave = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildChapterTracker[]
+     */
+    protected $chapterTrackersScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildSeriesTracker[]
+     */
+    protected $seriesTrackersScheduledForDeletion = null;
 
     /**
      * Initializes internal state of MangaSekai\Database\Base\Users object.
@@ -516,6 +548,10 @@ abstract class Users implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->collChapterTrackers = null;
+
+            $this->collSeriesTrackers = null;
+
         } // if (deep)
     }
 
@@ -628,6 +664,40 @@ abstract class Users implements ActiveRecordInterface
                     $affectedRows += $this->doUpdate($con);
                 }
                 $this->resetModified();
+            }
+
+            if ($this->chapterTrackersScheduledForDeletion !== null) {
+                if (!$this->chapterTrackersScheduledForDeletion->isEmpty()) {
+                    \MangaSekai\Database\ChapterTrackerQuery::create()
+                        ->filterByPrimaryKeys($this->chapterTrackersScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->chapterTrackersScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collChapterTrackers !== null) {
+                foreach ($this->collChapterTrackers as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->seriesTrackersScheduledForDeletion !== null) {
+                if (!$this->seriesTrackersScheduledForDeletion->isEmpty()) {
+                    \MangaSekai\Database\SeriesTrackerQuery::create()
+                        ->filterByPrimaryKeys($this->seriesTrackersScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->seriesTrackersScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collSeriesTrackers !== null) {
+                foreach ($this->collSeriesTrackers as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -773,10 +843,11 @@ abstract class Users implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
         if (isset($alreadyDumpedObjects['Users'][$this->hashCode()])) {
@@ -794,6 +865,38 @@ abstract class Users implements ActiveRecordInterface
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->collChapterTrackers) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'chapterTrackers';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'chapter_trackers';
+                        break;
+                    default:
+                        $key = 'ChapterTrackers';
+                }
+
+                $result[$key] = $this->collChapterTrackers->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collSeriesTrackers) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'seriesTrackers';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'series_trackers';
+                        break;
+                    default:
+                        $key = 'SeriesTrackers';
+                }
+
+                $result[$key] = $this->collSeriesTrackers->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -1009,6 +1112,26 @@ abstract class Users implements ActiveRecordInterface
     {
         $copyObj->setUsername($this->getUsername());
         $copyObj->setPassword($this->getPassword());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getChapterTrackers() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addChapterTracker($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getSeriesTrackers() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addSeriesTracker($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1035,6 +1158,533 @@ abstract class Users implements ActiveRecordInterface
         $this->copyInto($copyObj, $deepCopy);
 
         return $copyObj;
+    }
+
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('ChapterTracker' == $relationName) {
+            $this->initChapterTrackers();
+            return;
+        }
+        if ('SeriesTracker' == $relationName) {
+            $this->initSeriesTrackers();
+            return;
+        }
+    }
+
+    /**
+     * Clears out the collChapterTrackers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addChapterTrackers()
+     */
+    public function clearChapterTrackers()
+    {
+        $this->collChapterTrackers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collChapterTrackers collection loaded partially.
+     */
+    public function resetPartialChapterTrackers($v = true)
+    {
+        $this->collChapterTrackersPartial = $v;
+    }
+
+    /**
+     * Initializes the collChapterTrackers collection.
+     *
+     * By default this just sets the collChapterTrackers collection to an empty array (like clearcollChapterTrackers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initChapterTrackers($overrideExisting = true)
+    {
+        if (null !== $this->collChapterTrackers && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = ChapterTrackerTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collChapterTrackers = new $collectionClassName;
+        $this->collChapterTrackers->setModel('\MangaSekai\Database\ChapterTracker');
+    }
+
+    /**
+     * Gets an array of ChildChapterTracker objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildUsers is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildChapterTracker[] List of ChildChapterTracker objects
+     * @throws PropelException
+     */
+    public function getChapterTrackers(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collChapterTrackersPartial && !$this->isNew();
+        if (null === $this->collChapterTrackers || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collChapterTrackers) {
+                // return empty collection
+                $this->initChapterTrackers();
+            } else {
+                $collChapterTrackers = ChildChapterTrackerQuery::create(null, $criteria)
+                    ->filterByUsers($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collChapterTrackersPartial && count($collChapterTrackers)) {
+                        $this->initChapterTrackers(false);
+
+                        foreach ($collChapterTrackers as $obj) {
+                            if (false == $this->collChapterTrackers->contains($obj)) {
+                                $this->collChapterTrackers->append($obj);
+                            }
+                        }
+
+                        $this->collChapterTrackersPartial = true;
+                    }
+
+                    return $collChapterTrackers;
+                }
+
+                if ($partial && $this->collChapterTrackers) {
+                    foreach ($this->collChapterTrackers as $obj) {
+                        if ($obj->isNew()) {
+                            $collChapterTrackers[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collChapterTrackers = $collChapterTrackers;
+                $this->collChapterTrackersPartial = false;
+            }
+        }
+
+        return $this->collChapterTrackers;
+    }
+
+    /**
+     * Sets a collection of ChildChapterTracker objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $chapterTrackers A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildUsers The current object (for fluent API support)
+     */
+    public function setChapterTrackers(Collection $chapterTrackers, ConnectionInterface $con = null)
+    {
+        /** @var ChildChapterTracker[] $chapterTrackersToDelete */
+        $chapterTrackersToDelete = $this->getChapterTrackers(new Criteria(), $con)->diff($chapterTrackers);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->chapterTrackersScheduledForDeletion = clone $chapterTrackersToDelete;
+
+        foreach ($chapterTrackersToDelete as $chapterTrackerRemoved) {
+            $chapterTrackerRemoved->setUsers(null);
+        }
+
+        $this->collChapterTrackers = null;
+        foreach ($chapterTrackers as $chapterTracker) {
+            $this->addChapterTracker($chapterTracker);
+        }
+
+        $this->collChapterTrackers = $chapterTrackers;
+        $this->collChapterTrackersPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related ChapterTracker objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related ChapterTracker objects.
+     * @throws PropelException
+     */
+    public function countChapterTrackers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collChapterTrackersPartial && !$this->isNew();
+        if (null === $this->collChapterTrackers || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collChapterTrackers) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getChapterTrackers());
+            }
+
+            $query = ChildChapterTrackerQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByUsers($this)
+                ->count($con);
+        }
+
+        return count($this->collChapterTrackers);
+    }
+
+    /**
+     * Method called to associate a ChildChapterTracker object to this object
+     * through the ChildChapterTracker foreign key attribute.
+     *
+     * @param  ChildChapterTracker $l ChildChapterTracker
+     * @return $this|\MangaSekai\Database\Users The current object (for fluent API support)
+     */
+    public function addChapterTracker(ChildChapterTracker $l)
+    {
+        if ($this->collChapterTrackers === null) {
+            $this->initChapterTrackers();
+            $this->collChapterTrackersPartial = true;
+        }
+
+        if (!$this->collChapterTrackers->contains($l)) {
+            $this->doAddChapterTracker($l);
+
+            if ($this->chapterTrackersScheduledForDeletion and $this->chapterTrackersScheduledForDeletion->contains($l)) {
+                $this->chapterTrackersScheduledForDeletion->remove($this->chapterTrackersScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildChapterTracker $chapterTracker The ChildChapterTracker object to add.
+     */
+    protected function doAddChapterTracker(ChildChapterTracker $chapterTracker)
+    {
+        $this->collChapterTrackers[]= $chapterTracker;
+        $chapterTracker->setUsers($this);
+    }
+
+    /**
+     * @param  ChildChapterTracker $chapterTracker The ChildChapterTracker object to remove.
+     * @return $this|ChildUsers The current object (for fluent API support)
+     */
+    public function removeChapterTracker(ChildChapterTracker $chapterTracker)
+    {
+        if ($this->getChapterTrackers()->contains($chapterTracker)) {
+            $pos = $this->collChapterTrackers->search($chapterTracker);
+            $this->collChapterTrackers->remove($pos);
+            if (null === $this->chapterTrackersScheduledForDeletion) {
+                $this->chapterTrackersScheduledForDeletion = clone $this->collChapterTrackers;
+                $this->chapterTrackersScheduledForDeletion->clear();
+            }
+            $this->chapterTrackersScheduledForDeletion[]= clone $chapterTracker;
+            $chapterTracker->setUsers(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Users is new, it will return
+     * an empty collection; or if this Users has previously
+     * been saved, it will retrieve related ChapterTrackers from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Users.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildChapterTracker[] List of ChildChapterTracker objects
+     */
+    public function getChapterTrackersJoinChapters(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildChapterTrackerQuery::create(null, $criteria);
+        $query->joinWith('Chapters', $joinBehavior);
+
+        return $this->getChapterTrackers($query, $con);
+    }
+
+    /**
+     * Clears out the collSeriesTrackers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addSeriesTrackers()
+     */
+    public function clearSeriesTrackers()
+    {
+        $this->collSeriesTrackers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collSeriesTrackers collection loaded partially.
+     */
+    public function resetPartialSeriesTrackers($v = true)
+    {
+        $this->collSeriesTrackersPartial = $v;
+    }
+
+    /**
+     * Initializes the collSeriesTrackers collection.
+     *
+     * By default this just sets the collSeriesTrackers collection to an empty array (like clearcollSeriesTrackers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initSeriesTrackers($overrideExisting = true)
+    {
+        if (null !== $this->collSeriesTrackers && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = SeriesTrackerTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collSeriesTrackers = new $collectionClassName;
+        $this->collSeriesTrackers->setModel('\MangaSekai\Database\SeriesTracker');
+    }
+
+    /**
+     * Gets an array of ChildSeriesTracker objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildUsers is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildSeriesTracker[] List of ChildSeriesTracker objects
+     * @throws PropelException
+     */
+    public function getSeriesTrackers(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collSeriesTrackersPartial && !$this->isNew();
+        if (null === $this->collSeriesTrackers || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collSeriesTrackers) {
+                // return empty collection
+                $this->initSeriesTrackers();
+            } else {
+                $collSeriesTrackers = ChildSeriesTrackerQuery::create(null, $criteria)
+                    ->filterByUsers($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collSeriesTrackersPartial && count($collSeriesTrackers)) {
+                        $this->initSeriesTrackers(false);
+
+                        foreach ($collSeriesTrackers as $obj) {
+                            if (false == $this->collSeriesTrackers->contains($obj)) {
+                                $this->collSeriesTrackers->append($obj);
+                            }
+                        }
+
+                        $this->collSeriesTrackersPartial = true;
+                    }
+
+                    return $collSeriesTrackers;
+                }
+
+                if ($partial && $this->collSeriesTrackers) {
+                    foreach ($this->collSeriesTrackers as $obj) {
+                        if ($obj->isNew()) {
+                            $collSeriesTrackers[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collSeriesTrackers = $collSeriesTrackers;
+                $this->collSeriesTrackersPartial = false;
+            }
+        }
+
+        return $this->collSeriesTrackers;
+    }
+
+    /**
+     * Sets a collection of ChildSeriesTracker objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $seriesTrackers A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildUsers The current object (for fluent API support)
+     */
+    public function setSeriesTrackers(Collection $seriesTrackers, ConnectionInterface $con = null)
+    {
+        /** @var ChildSeriesTracker[] $seriesTrackersToDelete */
+        $seriesTrackersToDelete = $this->getSeriesTrackers(new Criteria(), $con)->diff($seriesTrackers);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->seriesTrackersScheduledForDeletion = clone $seriesTrackersToDelete;
+
+        foreach ($seriesTrackersToDelete as $seriesTrackerRemoved) {
+            $seriesTrackerRemoved->setUsers(null);
+        }
+
+        $this->collSeriesTrackers = null;
+        foreach ($seriesTrackers as $seriesTracker) {
+            $this->addSeriesTracker($seriesTracker);
+        }
+
+        $this->collSeriesTrackers = $seriesTrackers;
+        $this->collSeriesTrackersPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related SeriesTracker objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related SeriesTracker objects.
+     * @throws PropelException
+     */
+    public function countSeriesTrackers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collSeriesTrackersPartial && !$this->isNew();
+        if (null === $this->collSeriesTrackers || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collSeriesTrackers) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getSeriesTrackers());
+            }
+
+            $query = ChildSeriesTrackerQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByUsers($this)
+                ->count($con);
+        }
+
+        return count($this->collSeriesTrackers);
+    }
+
+    /**
+     * Method called to associate a ChildSeriesTracker object to this object
+     * through the ChildSeriesTracker foreign key attribute.
+     *
+     * @param  ChildSeriesTracker $l ChildSeriesTracker
+     * @return $this|\MangaSekai\Database\Users The current object (for fluent API support)
+     */
+    public function addSeriesTracker(ChildSeriesTracker $l)
+    {
+        if ($this->collSeriesTrackers === null) {
+            $this->initSeriesTrackers();
+            $this->collSeriesTrackersPartial = true;
+        }
+
+        if (!$this->collSeriesTrackers->contains($l)) {
+            $this->doAddSeriesTracker($l);
+
+            if ($this->seriesTrackersScheduledForDeletion and $this->seriesTrackersScheduledForDeletion->contains($l)) {
+                $this->seriesTrackersScheduledForDeletion->remove($this->seriesTrackersScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildSeriesTracker $seriesTracker The ChildSeriesTracker object to add.
+     */
+    protected function doAddSeriesTracker(ChildSeriesTracker $seriesTracker)
+    {
+        $this->collSeriesTrackers[]= $seriesTracker;
+        $seriesTracker->setUsers($this);
+    }
+
+    /**
+     * @param  ChildSeriesTracker $seriesTracker The ChildSeriesTracker object to remove.
+     * @return $this|ChildUsers The current object (for fluent API support)
+     */
+    public function removeSeriesTracker(ChildSeriesTracker $seriesTracker)
+    {
+        if ($this->getSeriesTrackers()->contains($seriesTracker)) {
+            $pos = $this->collSeriesTrackers->search($seriesTracker);
+            $this->collSeriesTrackers->remove($pos);
+            if (null === $this->seriesTrackersScheduledForDeletion) {
+                $this->seriesTrackersScheduledForDeletion = clone $this->collSeriesTrackers;
+                $this->seriesTrackersScheduledForDeletion->clear();
+            }
+            $this->seriesTrackersScheduledForDeletion[]= clone $seriesTracker;
+            $seriesTracker->setUsers(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Users is new, it will return
+     * an empty collection; or if this Users has previously
+     * been saved, it will retrieve related SeriesTrackers from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Users.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildSeriesTracker[] List of ChildSeriesTracker objects
+     */
+    public function getSeriesTrackersJoinSeries(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildSeriesTrackerQuery::create(null, $criteria);
+        $query->joinWith('Series', $joinBehavior);
+
+        return $this->getSeriesTrackers($query, $con);
     }
 
     /**
@@ -1065,8 +1715,20 @@ abstract class Users implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collChapterTrackers) {
+                foreach ($this->collChapterTrackers as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collSeriesTrackers) {
+                foreach ($this->collSeriesTrackers as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        $this->collChapterTrackers = null;
+        $this->collSeriesTrackers = null;
     }
 
     /**

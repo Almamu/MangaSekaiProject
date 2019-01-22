@@ -9,29 +9,40 @@
         const RECORDS_PER_PAGE = 20;
         
         use \MangaSekai\JSON\PaginationResponse;
+        use \MangaSekai\Controllers\Security;
         
         function list (\MangaSekai\HTTP\Request $request)
         {
-            $page = 1;
+            $this->validateUser ($request);
             
-            if ($request->hasQueryStringParameter ('page') === true)
+            if ($request->getMethod () == 'POST')
             {
-                $page = $request->getQueryStringParameter ('page');
-            }
             
-            $request
-                ->makeResponse ()
-                ->setContentType (\MangaSekai\HTTP\Response::JSON)
-                ->setOutput (
-                    $this->paginatedResponse (
-                        SeriesQuery::create ()->paginate ($page, self::RECORDS_PER_PAGE)
+            }
+            else
+            {
+                $page = 1;
+                
+                if ($request->hasQueryStringParameter ('page') === true)
+                {
+                    $page = $request->getQueryStringParameter ('page');
+                }
+                
+                $request
+                    ->makeResponse ()
+                    ->setContentType (\MangaSekai\HTTP\Response::JSON)
+                    ->setOutput (
+                        $this->paginatedResponse (
+                            SeriesQuery::create ()->paginate ($page, self::RECORDS_PER_PAGE)
+                        )
                     )
-                )
-                ->printOutput ();
+                    ->printOutput ();
+            }
         }
         
         function info (\MangaSekai\HTTP\Request $request)
         {
+            $this->validateUser ($request);
             $serie = SeriesQuery::create ()->findOneById ((int) $request->getParameter (':id'));
             
             if ($serie == null)

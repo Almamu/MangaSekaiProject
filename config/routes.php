@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
     return array (
-        '/installer' => array (
+        '/upload' => array (
             'controller' => '\\MangaSekai\\Controllers\\Installer',
-            'function' => 'start'
+            'function' => 'upload'
         ),
         '/series' => array (
             'controller' => '\\MangaSekai\\Controllers\\Series',
@@ -29,5 +29,21 @@
                 ':serieid' => '[0-9]+',
                 ':chapterid' => '[0-9]+'
             )
+        ),
+        '/login' => array (
+            'controller' => '\\MangaSekai\\Controllers\\User',
+            'function' => 'login'
+        ),
+        '/token/refresh' => array (
+            'controller' => '\\MangaSekai\\Controllers\\User',
+            'function' => 'refresh'
+        ),
+        '/track/series' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Track',
+            'function' => 'series'
+        ),
+        '/track/series/:id/chapters' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Track',
+            'function' => 'chapters'
         )
     );

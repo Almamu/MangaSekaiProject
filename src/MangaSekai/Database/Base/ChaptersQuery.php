@@ -48,7 +48,17 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildChaptersQuery rightJoinWithSeries() Adds a RIGHT JOIN clause and with to the query using the Series relation
  * @method     ChildChaptersQuery innerJoinWithSeries() Adds a INNER JOIN clause and with to the query using the Series relation
  *
- * @method     \MangaSekai\Database\SeriesQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildChaptersQuery leftJoinChapterTracker($relationAlias = null) Adds a LEFT JOIN clause to the query using the ChapterTracker relation
+ * @method     ChildChaptersQuery rightJoinChapterTracker($relationAlias = null) Adds a RIGHT JOIN clause to the query using the ChapterTracker relation
+ * @method     ChildChaptersQuery innerJoinChapterTracker($relationAlias = null) Adds a INNER JOIN clause to the query using the ChapterTracker relation
+ *
+ * @method     ChildChaptersQuery joinWithChapterTracker($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the ChapterTracker relation
+ *
+ * @method     ChildChaptersQuery leftJoinWithChapterTracker() Adds a LEFT JOIN clause and with to the query using the ChapterTracker relation
+ * @method     ChildChaptersQuery rightJoinWithChapterTracker() Adds a RIGHT JOIN clause and with to the query using the ChapterTracker relation
+ * @method     ChildChaptersQuery innerJoinWithChapterTracker() Adds a INNER JOIN clause and with to the query using the ChapterTracker relation
+ *
+ * @method     \MangaSekai\Database\SeriesQuery|\MangaSekai\Database\ChapterTrackerQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildChapters findOne(ConnectionInterface $con = null) Return the first ChildChapters matching the query
  * @method     ChildChapters findOneOrCreate(ConnectionInterface $con = null) Return the first ChildChapters matching the query, or a new ChildChapters object populated from the query conditions when no match is found
@@ -500,6 +510,79 @@ abstract class ChaptersQuery extends ModelCriteria
         return $this
             ->joinSeries($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Series', '\MangaSekai\Database\SeriesQuery');
+    }
+
+    /**
+     * Filter the query by a related \MangaSekai\Database\ChapterTracker object
+     *
+     * @param \MangaSekai\Database\ChapterTracker|ObjectCollection $chapterTracker the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildChaptersQuery The current query, for fluid interface
+     */
+    public function filterByChapterTracker($chapterTracker, $comparison = null)
+    {
+        if ($chapterTracker instanceof \MangaSekai\Database\ChapterTracker) {
+            return $this
+                ->addUsingAlias(ChaptersTableMap::COL_ID, $chapterTracker->getIdChapter(), $comparison);
+        } elseif ($chapterTracker instanceof ObjectCollection) {
+            return $this
+                ->useChapterTrackerQuery()
+                ->filterByPrimaryKeys($chapterTracker->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByChapterTracker() only accepts arguments of type \MangaSekai\Database\ChapterTracker or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the ChapterTracker relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildChaptersQuery The current query, for fluid interface
+     */
+    public function joinChapterTracker($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('ChapterTracker');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'ChapterTracker');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the ChapterTracker relation ChapterTracker object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \MangaSekai\Database\ChapterTrackerQuery A secondary query class using the current class as primary query
+     */
+    public function useChapterTrackerQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinChapterTracker($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'ChapterTracker', '\MangaSekai\Database\ChapterTrackerQuery');
     }
 
     /**

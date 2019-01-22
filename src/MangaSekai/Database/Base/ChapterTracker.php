@@ -4,20 +4,17 @@ namespace MangaSekai\Database\Base;
 
 use \Exception;
 use \PDO;
-use MangaSekai\Database\ChapterTracker as ChildChapterTracker;
 use MangaSekai\Database\ChapterTrackerQuery as ChildChapterTrackerQuery;
 use MangaSekai\Database\Chapters as ChildChapters;
 use MangaSekai\Database\ChaptersQuery as ChildChaptersQuery;
-use MangaSekai\Database\Series as ChildSeries;
-use MangaSekai\Database\SeriesQuery as ChildSeriesQuery;
+use MangaSekai\Database\Users as ChildUsers;
+use MangaSekai\Database\UsersQuery as ChildUsersQuery;
 use MangaSekai\Database\Map\ChapterTrackerTableMap;
-use MangaSekai\Database\Map\ChaptersTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
-use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -26,18 +23,18 @@ use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
 
 /**
- * Base class that represents a row from the 'chapters' table.
+ * Base class that represents a row from the 'chapter_tracker' table.
  *
  *
  *
  * @package    propel.generator.MangaSekai.Database.Base
  */
-abstract class Chapters implements ActiveRecordInterface
+abstract class ChapterTracker implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\MangaSekai\\Database\\Map\\ChaptersTableMap';
+    const TABLE_MAP = '\\MangaSekai\\Database\\Map\\ChapterTrackerTableMap';
 
 
     /**
@@ -67,43 +64,28 @@ abstract class Chapters implements ActiveRecordInterface
     protected $virtualColumns = array();
 
     /**
-     * The value for the id field.
+     * The value for the id_chapter field.
      *
      * @var        int
      */
-    protected $id;
+    protected $id_chapter;
 
     /**
-     * The value for the id_series field.
+     * The value for the id_user field.
      *
      * @var        int
      */
-    protected $id_series;
+    protected $id_user;
 
     /**
-     * The value for the pages_count field.
-     *
-     * @var        int
+     * @var        ChildChapters
      */
-    protected $pages_count;
+    protected $aChapters;
 
     /**
-     * The value for the number field.
-     *
-     * @var        int
+     * @var        ChildUsers
      */
-    protected $number;
-
-    /**
-     * @var        ChildSeries
-     */
-    protected $aSeries;
-
-    /**
-     * @var        ObjectCollection|ChildChapterTracker[] Collection to store aggregation of ChildChapterTracker objects.
-     */
-    protected $collChapterTrackers;
-    protected $collChapterTrackersPartial;
+    protected $aUsers;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -114,13 +96,7 @@ abstract class Chapters implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * An array of objects scheduled for deletion.
-     * @var ObjectCollection|ChildChapterTracker[]
-     */
-    protected $chapterTrackersScheduledForDeletion = null;
-
-    /**
-     * Initializes internal state of MangaSekai\Database\Base\Chapters object.
+     * Initializes internal state of MangaSekai\Database\Base\ChapterTracker object.
      */
     public function __construct()
     {
@@ -215,9 +191,9 @@ abstract class Chapters implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>Chapters</code> instance.  If
-     * <code>obj</code> is an instance of <code>Chapters</code>, delegates to
-     * <code>equals(Chapters)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>ChapterTracker</code> instance.  If
+     * <code>obj</code> is an instance of <code>ChapterTracker</code>, delegates to
+     * <code>equals(ChapterTracker)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -283,7 +259,7 @@ abstract class Chapters implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return $this|Chapters The current object, for fluid interface
+     * @return $this|ChapterTracker The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -345,128 +321,72 @@ abstract class Chapters implements ActiveRecordInterface
     }
 
     /**
-     * Get the [id] column value.
+     * Get the [id_chapter] column value.
      *
      * @return int
      */
-    public function getId()
+    public function getIdChapter()
     {
-        return $this->id;
+        return $this->id_chapter;
     }
 
     /**
-     * Get the [id_series] column value.
+     * Get the [id_user] column value.
      *
      * @return int
      */
-    public function getIdSeries()
+    public function getIdUser()
     {
-        return $this->id_series;
+        return $this->id_user;
     }
 
     /**
-     * Get the [pages_count] column value.
-     *
-     * @return int
-     */
-    public function getPagesCount()
-    {
-        return $this->pages_count;
-    }
-
-    /**
-     * Get the [number] column value.
-     *
-     * @return int
-     */
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    /**
-     * Set the value of [id] column.
+     * Set the value of [id_chapter] column.
      *
      * @param int $v new value
-     * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
+     * @return $this|\MangaSekai\Database\ChapterTracker The current object (for fluent API support)
      */
-    public function setId($v)
+    public function setIdChapter($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->id !== $v) {
-            $this->id = $v;
-            $this->modifiedColumns[ChaptersTableMap::COL_ID] = true;
+        if ($this->id_chapter !== $v) {
+            $this->id_chapter = $v;
+            $this->modifiedColumns[ChapterTrackerTableMap::COL_ID_CHAPTER] = true;
+        }
+
+        if ($this->aChapters !== null && $this->aChapters->getId() !== $v) {
+            $this->aChapters = null;
         }
 
         return $this;
-    } // setId()
+    } // setIdChapter()
 
     /**
-     * Set the value of [id_series] column.
+     * Set the value of [id_user] column.
      *
      * @param int $v new value
-     * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
+     * @return $this|\MangaSekai\Database\ChapterTracker The current object (for fluent API support)
      */
-    public function setIdSeries($v)
+    public function setIdUser($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->id_series !== $v) {
-            $this->id_series = $v;
-            $this->modifiedColumns[ChaptersTableMap::COL_ID_SERIES] = true;
+        if ($this->id_user !== $v) {
+            $this->id_user = $v;
+            $this->modifiedColumns[ChapterTrackerTableMap::COL_ID_USER] = true;
         }
 
-        if ($this->aSeries !== null && $this->aSeries->getId() !== $v) {
-            $this->aSeries = null;
-        }
-
-        return $this;
-    } // setIdSeries()
-
-    /**
-     * Set the value of [pages_count] column.
-     *
-     * @param int $v new value
-     * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
-     */
-    public function setPagesCount($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->pages_count !== $v) {
-            $this->pages_count = $v;
-            $this->modifiedColumns[ChaptersTableMap::COL_PAGES_COUNT] = true;
+        if ($this->aUsers !== null && $this->aUsers->getId() !== $v) {
+            $this->aUsers = null;
         }
 
         return $this;
-    } // setPagesCount()
-
-    /**
-     * Set the value of [number] column.
-     *
-     * @param int $v new value
-     * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
-     */
-    public function setNumber($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->number !== $v) {
-            $this->number = $v;
-            $this->modifiedColumns[ChaptersTableMap::COL_NUMBER] = true;
-        }
-
-        return $this;
-    } // setNumber()
+    } // setIdUser()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -504,17 +424,11 @@ abstract class Chapters implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : ChaptersTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->id = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : ChapterTrackerTableMap::translateFieldName('IdChapter', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->id_chapter = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ChaptersTableMap::translateFieldName('IdSeries', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->id_series = (null !== $col) ? (int) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ChaptersTableMap::translateFieldName('PagesCount', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->pages_count = (null !== $col) ? (int) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ChaptersTableMap::translateFieldName('Number', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->number = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ChapterTrackerTableMap::translateFieldName('IdUser', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->id_user = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -523,10 +437,10 @@ abstract class Chapters implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 4; // 4 = ChaptersTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 2; // 2 = ChapterTrackerTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\Chapters'), 0, $e);
+            throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\ChapterTracker'), 0, $e);
         }
     }
 
@@ -545,8 +459,11 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aSeries !== null && $this->id_series !== $this->aSeries->getId()) {
-            $this->aSeries = null;
+        if ($this->aChapters !== null && $this->id_chapter !== $this->aChapters->getId()) {
+            $this->aChapters = null;
+        }
+        if ($this->aUsers !== null && $this->id_user !== $this->aUsers->getId()) {
+            $this->aUsers = null;
         }
     } // ensureConsistency
 
@@ -571,13 +488,13 @@ abstract class Chapters implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(ChaptersTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(ChapterTrackerTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildChaptersQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildChapterTrackerQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -587,9 +504,8 @@ abstract class Chapters implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aSeries = null;
-            $this->collChapterTrackers = null;
-
+            $this->aChapters = null;
+            $this->aUsers = null;
         } // if (deep)
     }
 
@@ -599,8 +515,8 @@ abstract class Chapters implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see Chapters::setDeleted()
-     * @see Chapters::isDeleted()
+     * @see ChapterTracker::setDeleted()
+     * @see ChapterTracker::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -609,11 +525,11 @@ abstract class Chapters implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(ChaptersTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ChapterTrackerTableMap::DATABASE_NAME);
         }
 
         $con->transaction(function () use ($con) {
-            $deleteQuery = ChildChaptersQuery::create()
+            $deleteQuery = ChildChapterTrackerQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -648,7 +564,7 @@ abstract class Chapters implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(ChaptersTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ChapterTrackerTableMap::DATABASE_NAME);
         }
 
         return $con->transaction(function () use ($con) {
@@ -667,7 +583,7 @@ abstract class Chapters implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                ChaptersTableMap::addInstanceToPool($this);
+                ChapterTrackerTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -698,11 +614,18 @@ abstract class Chapters implements ActiveRecordInterface
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aSeries !== null) {
-                if ($this->aSeries->isModified() || $this->aSeries->isNew()) {
-                    $affectedRows += $this->aSeries->save($con);
+            if ($this->aChapters !== null) {
+                if ($this->aChapters->isModified() || $this->aChapters->isNew()) {
+                    $affectedRows += $this->aChapters->save($con);
                 }
-                $this->setSeries($this->aSeries);
+                $this->setChapters($this->aChapters);
+            }
+
+            if ($this->aUsers !== null) {
+                if ($this->aUsers->isModified() || $this->aUsers->isNew()) {
+                    $affectedRows += $this->aUsers->save($con);
+                }
+                $this->setUsers($this->aUsers);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -714,23 +637,6 @@ abstract class Chapters implements ActiveRecordInterface
                     $affectedRows += $this->doUpdate($con);
                 }
                 $this->resetModified();
-            }
-
-            if ($this->chapterTrackersScheduledForDeletion !== null) {
-                if (!$this->chapterTrackersScheduledForDeletion->isEmpty()) {
-                    \MangaSekai\Database\ChapterTrackerQuery::create()
-                        ->filterByPrimaryKeys($this->chapterTrackersScheduledForDeletion->getPrimaryKeys(false))
-                        ->delete($con);
-                    $this->chapterTrackersScheduledForDeletion = null;
-                }
-            }
-
-            if ($this->collChapterTrackers !== null) {
-                foreach ($this->collChapterTrackers as $referrerFK) {
-                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
-                        $affectedRows += $referrerFK->save($con);
-                    }
-                }
             }
 
             $this->alreadyInSave = false;
@@ -753,27 +659,17 @@ abstract class Chapters implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[ChaptersTableMap::COL_ID] = true;
-        if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . ChaptersTableMap::COL_ID . ')');
-        }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(ChaptersTableMap::COL_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'id';
+        if ($this->isColumnModified(ChapterTrackerTableMap::COL_ID_CHAPTER)) {
+            $modifiedColumns[':p' . $index++]  = 'id_chapter';
         }
-        if ($this->isColumnModified(ChaptersTableMap::COL_ID_SERIES)) {
-            $modifiedColumns[':p' . $index++]  = 'id_series';
-        }
-        if ($this->isColumnModified(ChaptersTableMap::COL_PAGES_COUNT)) {
-            $modifiedColumns[':p' . $index++]  = 'pages_count';
-        }
-        if ($this->isColumnModified(ChaptersTableMap::COL_NUMBER)) {
-            $modifiedColumns[':p' . $index++]  = 'number';
+        if ($this->isColumnModified(ChapterTrackerTableMap::COL_ID_USER)) {
+            $modifiedColumns[':p' . $index++]  = 'id_user';
         }
 
         $sql = sprintf(
-            'INSERT INTO chapters (%s) VALUES (%s)',
+            'INSERT INTO chapter_tracker (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -782,17 +678,11 @@ abstract class Chapters implements ActiveRecordInterface
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
-                    case 'id':
-                        $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
+                    case 'id_chapter':
+                        $stmt->bindValue($identifier, $this->id_chapter, PDO::PARAM_INT);
                         break;
-                    case 'id_series':
-                        $stmt->bindValue($identifier, $this->id_series, PDO::PARAM_INT);
-                        break;
-                    case 'pages_count':
-                        $stmt->bindValue($identifier, $this->pages_count, PDO::PARAM_INT);
-                        break;
-                    case 'number':
-                        $stmt->bindValue($identifier, $this->number, PDO::PARAM_INT);
+                    case 'id_user':
+                        $stmt->bindValue($identifier, $this->id_user, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -801,13 +691,6 @@ abstract class Chapters implements ActiveRecordInterface
             Propel::log($e->getMessage(), Propel::LOG_ERR);
             throw new PropelException(sprintf('Unable to execute INSERT statement [%s]', $sql), 0, $e);
         }
-
-        try {
-            $pk = $con->lastInsertId();
-        } catch (Exception $e) {
-            throw new PropelException('Unable to get autoincrement id.', 0, $e);
-        }
-        $this->setId($pk);
 
         $this->setNew(false);
     }
@@ -840,7 +723,7 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = ChaptersTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = ChapterTrackerTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -857,16 +740,10 @@ abstract class Chapters implements ActiveRecordInterface
     {
         switch ($pos) {
             case 0:
-                return $this->getId();
+                return $this->getIdChapter();
                 break;
             case 1:
-                return $this->getIdSeries();
-                break;
-            case 2:
-                return $this->getPagesCount();
-                break;
-            case 3:
-                return $this->getNumber();
+                return $this->getIdUser();
                 break;
             default:
                 return null;
@@ -892,16 +769,14 @@ abstract class Chapters implements ActiveRecordInterface
     public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
-        if (isset($alreadyDumpedObjects['Chapters'][$this->hashCode()])) {
+        if (isset($alreadyDumpedObjects['ChapterTracker'][$this->hashCode()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['Chapters'][$this->hashCode()] = true;
-        $keys = ChaptersTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['ChapterTracker'][$this->hashCode()] = true;
+        $keys = ChapterTrackerTableMap::getFieldNames($keyType);
         $result = array(
-            $keys[0] => $this->getId(),
-            $keys[1] => $this->getIdSeries(),
-            $keys[2] => $this->getPagesCount(),
-            $keys[3] => $this->getNumber(),
+            $keys[0] => $this->getIdChapter(),
+            $keys[1] => $this->getIdUser(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -909,35 +784,35 @@ abstract class Chapters implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aSeries) {
+            if (null !== $this->aChapters) {
 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
-                        $key = 'series';
+                        $key = 'chapters';
                         break;
                     case TableMap::TYPE_FIELDNAME:
-                        $key = 'series';
+                        $key = 'chapters';
                         break;
                     default:
-                        $key = 'Series';
+                        $key = 'Chapters';
                 }
 
-                $result[$key] = $this->aSeries->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+                $result[$key] = $this->aChapters->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
-            if (null !== $this->collChapterTrackers) {
+            if (null !== $this->aUsers) {
 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
-                        $key = 'chapterTrackers';
+                        $key = 'users';
                         break;
                     case TableMap::TYPE_FIELDNAME:
-                        $key = 'chapter_trackers';
+                        $key = 'users';
                         break;
                     default:
-                        $key = 'ChapterTrackers';
+                        $key = 'Users';
                 }
 
-                $result[$key] = $this->collChapterTrackers->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+                $result[$key] = $this->aUsers->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -953,11 +828,11 @@ abstract class Chapters implements ActiveRecordInterface
      *                one of the class type constants TableMap::TYPE_PHPNAME, TableMap::TYPE_CAMELNAME
      *                TableMap::TYPE_COLNAME, TableMap::TYPE_FIELDNAME, TableMap::TYPE_NUM.
      *                Defaults to TableMap::TYPE_PHPNAME.
-     * @return $this|\MangaSekai\Database\Chapters
+     * @return $this|\MangaSekai\Database\ChapterTracker
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = ChaptersTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = ChapterTrackerTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -968,22 +843,16 @@ abstract class Chapters implements ActiveRecordInterface
      *
      * @param  int $pos position in xml schema
      * @param  mixed $value field value
-     * @return $this|\MangaSekai\Database\Chapters
+     * @return $this|\MangaSekai\Database\ChapterTracker
      */
     public function setByPosition($pos, $value)
     {
         switch ($pos) {
             case 0:
-                $this->setId($value);
+                $this->setIdChapter($value);
                 break;
             case 1:
-                $this->setIdSeries($value);
-                break;
-            case 2:
-                $this->setPagesCount($value);
-                break;
-            case 3:
-                $this->setNumber($value);
+                $this->setIdUser($value);
                 break;
         } // switch()
 
@@ -1009,19 +878,13 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = ChaptersTableMap::getFieldNames($keyType);
+        $keys = ChapterTrackerTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
-            $this->setId($arr[$keys[0]]);
+            $this->setIdChapter($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setIdSeries($arr[$keys[1]]);
-        }
-        if (array_key_exists($keys[2], $arr)) {
-            $this->setPagesCount($arr[$keys[2]]);
-        }
-        if (array_key_exists($keys[3], $arr)) {
-            $this->setNumber($arr[$keys[3]]);
+            $this->setIdUser($arr[$keys[1]]);
         }
     }
 
@@ -1042,7 +905,7 @@ abstract class Chapters implements ActiveRecordInterface
      * @param string $data The source data to import from
      * @param string $keyType The type of keys the array uses.
      *
-     * @return $this|\MangaSekai\Database\Chapters The current object, for fluid interface
+     * @return $this|\MangaSekai\Database\ChapterTracker The current object, for fluid interface
      */
     public function importFrom($parser, $data, $keyType = TableMap::TYPE_PHPNAME)
     {
@@ -1062,19 +925,13 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(ChaptersTableMap::DATABASE_NAME);
+        $criteria = new Criteria(ChapterTrackerTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(ChaptersTableMap::COL_ID)) {
-            $criteria->add(ChaptersTableMap::COL_ID, $this->id);
+        if ($this->isColumnModified(ChapterTrackerTableMap::COL_ID_CHAPTER)) {
+            $criteria->add(ChapterTrackerTableMap::COL_ID_CHAPTER, $this->id_chapter);
         }
-        if ($this->isColumnModified(ChaptersTableMap::COL_ID_SERIES)) {
-            $criteria->add(ChaptersTableMap::COL_ID_SERIES, $this->id_series);
-        }
-        if ($this->isColumnModified(ChaptersTableMap::COL_PAGES_COUNT)) {
-            $criteria->add(ChaptersTableMap::COL_PAGES_COUNT, $this->pages_count);
-        }
-        if ($this->isColumnModified(ChaptersTableMap::COL_NUMBER)) {
-            $criteria->add(ChaptersTableMap::COL_NUMBER, $this->number);
+        if ($this->isColumnModified(ChapterTrackerTableMap::COL_ID_USER)) {
+            $criteria->add(ChapterTrackerTableMap::COL_ID_USER, $this->id_user);
         }
 
         return $criteria;
@@ -1092,8 +949,9 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = ChildChaptersQuery::create();
-        $criteria->add(ChaptersTableMap::COL_ID, $this->id);
+        $criteria = ChildChapterTrackerQuery::create();
+        $criteria->add(ChapterTrackerTableMap::COL_ID_CHAPTER, $this->id_chapter);
+        $criteria->add(ChapterTrackerTableMap::COL_ID_USER, $this->id_user);
 
         return $criteria;
     }
@@ -1106,10 +964,25 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function hashCode()
     {
-        $validPk = null !== $this->getId();
+        $validPk = null !== $this->getIdChapter() &&
+            null !== $this->getIdUser();
 
-        $validPrimaryKeyFKs = 0;
+        $validPrimaryKeyFKs = 2;
         $primaryKeyFKs = [];
+
+        //relation fk_chapter_tracker to table chapters
+        if ($this->aChapters && $hash = spl_object_hash($this->aChapters)) {
+            $primaryKeyFKs[] = $hash;
+        } else {
+            $validPrimaryKeyFKs = false;
+        }
+
+        //relation fk_users_tracker to table users
+        if ($this->aUsers && $hash = spl_object_hash($this->aUsers)) {
+            $primaryKeyFKs[] = $hash;
+        } else {
+            $validPrimaryKeyFKs = false;
+        }
 
         if ($validPk) {
             return crc32(json_encode($this->getPrimaryKey(), JSON_UNESCAPED_UNICODE));
@@ -1121,23 +994,29 @@ abstract class Chapters implements ActiveRecordInterface
     }
 
     /**
-     * Returns the primary key for this object (row).
-     * @return int
+     * Returns the composite primary key for this object.
+     * The array elements will be in same order as specified in XML.
+     * @return array
      */
     public function getPrimaryKey()
     {
-        return $this->getId();
+        $pks = array();
+        $pks[0] = $this->getIdChapter();
+        $pks[1] = $this->getIdUser();
+
+        return $pks;
     }
 
     /**
-     * Generic method to set the primary key (id column).
+     * Set the [composite] primary key.
      *
-     * @param       int $key Primary key.
+     * @param      array $keys The elements of the composite key (order must match the order in XML file).
      * @return void
      */
-    public function setPrimaryKey($key)
+    public function setPrimaryKey($keys)
     {
-        $this->setId($key);
+        $this->setIdChapter($keys[0]);
+        $this->setIdUser($keys[1]);
     }
 
     /**
@@ -1146,7 +1025,7 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function isPrimaryKeyNull()
     {
-        return null === $this->getId();
+        return (null === $this->getIdChapter()) && (null === $this->getIdUser());
     }
 
     /**
@@ -1155,33 +1034,17 @@ abstract class Chapters implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \MangaSekai\Database\Chapters (or compatible) type.
+     * @param      object $copyObj An object of \MangaSekai\Database\ChapterTracker (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setIdSeries($this->getIdSeries());
-        $copyObj->setPagesCount($this->getPagesCount());
-        $copyObj->setNumber($this->getNumber());
-
-        if ($deepCopy) {
-            // important: temporarily setNew(false) because this affects the behavior of
-            // the getter/setter methods for fkey referrer objects.
-            $copyObj->setNew(false);
-
-            foreach ($this->getChapterTrackers() as $relObj) {
-                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addChapterTracker($relObj->copy($deepCopy));
-                }
-            }
-
-        } // if ($deepCopy)
-
+        $copyObj->setIdChapter($this->getIdChapter());
+        $copyObj->setIdUser($this->getIdUser());
         if ($makeNew) {
             $copyObj->setNew(true);
-            $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
         }
     }
 
@@ -1194,7 +1057,7 @@ abstract class Chapters implements ActiveRecordInterface
      * objects.
      *
      * @param  boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return \MangaSekai\Database\Chapters Clone of current object.
+     * @return \MangaSekai\Database\ChapterTracker Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1208,26 +1071,26 @@ abstract class Chapters implements ActiveRecordInterface
     }
 
     /**
-     * Declares an association between this object and a ChildSeries object.
+     * Declares an association between this object and a ChildChapters object.
      *
-     * @param  ChildSeries $v
-     * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
+     * @param  ChildChapters $v
+     * @return $this|\MangaSekai\Database\ChapterTracker The current object (for fluent API support)
      * @throws PropelException
      */
-    public function setSeries(ChildSeries $v = null)
+    public function setChapters(ChildChapters $v = null)
     {
         if ($v === null) {
-            $this->setIdSeries(NULL);
+            $this->setIdChapter(NULL);
         } else {
-            $this->setIdSeries($v->getId());
+            $this->setIdChapter($v->getId());
         }
 
-        $this->aSeries = $v;
+        $this->aChapters = $v;
 
         // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the ChildSeries object, it will not be re-added.
+        // If this object has already been added to the ChildChapters object, it will not be re-added.
         if ($v !== null) {
-            $v->addChapters($this);
+            $v->addChapterTracker($this);
         }
 
 
@@ -1236,296 +1099,77 @@ abstract class Chapters implements ActiveRecordInterface
 
 
     /**
-     * Get the associated ChildSeries object
+     * Get the associated ChildChapters object
      *
      * @param  ConnectionInterface $con Optional Connection object.
-     * @return ChildSeries The associated ChildSeries object.
+     * @return ChildChapters The associated ChildChapters object.
      * @throws PropelException
      */
-    public function getSeries(ConnectionInterface $con = null)
+    public function getChapters(ConnectionInterface $con = null)
     {
-        if ($this->aSeries === null && ($this->id_series != 0)) {
-            $this->aSeries = ChildSeriesQuery::create()->findPk($this->id_series, $con);
+        if ($this->aChapters === null && ($this->id_chapter != 0)) {
+            $this->aChapters = ChildChaptersQuery::create()->findPk($this->id_chapter, $con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
                 undesirable since it could result in an only partially populated collection
                 in the referenced object.
-                $this->aSeries->addChapterss($this);
+                $this->aChapters->addChapterTrackers($this);
              */
         }
 
-        return $this->aSeries;
-    }
-
-
-    /**
-     * Initializes a collection based on the name of a relation.
-     * Avoids crafting an 'init[$relationName]s' method name
-     * that wouldn't work when StandardEnglishPluralizer is used.
-     *
-     * @param      string $relationName The name of the relation to initialize
-     * @return void
-     */
-    public function initRelation($relationName)
-    {
-        if ('ChapterTracker' == $relationName) {
-            $this->initChapterTrackers();
-            return;
-        }
+        return $this->aChapters;
     }
 
     /**
-     * Clears out the collChapterTrackers collection
+     * Declares an association between this object and a ChildUsers object.
      *
-     * This does not modify the database; however, it will remove any associated objects, causing
-     * them to be refetched by subsequent calls to accessor method.
-     *
-     * @return void
-     * @see        addChapterTrackers()
-     */
-    public function clearChapterTrackers()
-    {
-        $this->collChapterTrackers = null; // important to set this to NULL since that means it is uninitialized
-    }
-
-    /**
-     * Reset is the collChapterTrackers collection loaded partially.
-     */
-    public function resetPartialChapterTrackers($v = true)
-    {
-        $this->collChapterTrackersPartial = $v;
-    }
-
-    /**
-     * Initializes the collChapterTrackers collection.
-     *
-     * By default this just sets the collChapterTrackers collection to an empty array (like clearcollChapterTrackers());
-     * however, you may wish to override this method in your stub class to provide setting appropriate
-     * to your application -- for example, setting the initial array to the values stored in database.
-     *
-     * @param      boolean $overrideExisting If set to true, the method call initializes
-     *                                        the collection even if it is not empty
-     *
-     * @return void
-     */
-    public function initChapterTrackers($overrideExisting = true)
-    {
-        if (null !== $this->collChapterTrackers && !$overrideExisting) {
-            return;
-        }
-
-        $collectionClassName = ChapterTrackerTableMap::getTableMap()->getCollectionClassName();
-
-        $this->collChapterTrackers = new $collectionClassName;
-        $this->collChapterTrackers->setModel('\MangaSekai\Database\ChapterTracker');
-    }
-
-    /**
-     * Gets an array of ChildChapterTracker objects which contain a foreign key that references this object.
-     *
-     * If the $criteria is not null, it is used to always fetch the results from the database.
-     * Otherwise the results are fetched from the database the first time, then cached.
-     * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this ChildChapters is new, it will return
-     * an empty collection or the current collection; the criteria is ignored on a new object.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
-     * @return ObjectCollection|ChildChapterTracker[] List of ChildChapterTracker objects
+     * @param  ChildUsers $v
+     * @return $this|\MangaSekai\Database\ChapterTracker The current object (for fluent API support)
      * @throws PropelException
      */
-    public function getChapterTrackers(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function setUsers(ChildUsers $v = null)
     {
-        $partial = $this->collChapterTrackersPartial && !$this->isNew();
-        if (null === $this->collChapterTrackers || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collChapterTrackers) {
-                // return empty collection
-                $this->initChapterTrackers();
-            } else {
-                $collChapterTrackers = ChildChapterTrackerQuery::create(null, $criteria)
-                    ->filterByChapters($this)
-                    ->find($con);
-
-                if (null !== $criteria) {
-                    if (false !== $this->collChapterTrackersPartial && count($collChapterTrackers)) {
-                        $this->initChapterTrackers(false);
-
-                        foreach ($collChapterTrackers as $obj) {
-                            if (false == $this->collChapterTrackers->contains($obj)) {
-                                $this->collChapterTrackers->append($obj);
-                            }
-                        }
-
-                        $this->collChapterTrackersPartial = true;
-                    }
-
-                    return $collChapterTrackers;
-                }
-
-                if ($partial && $this->collChapterTrackers) {
-                    foreach ($this->collChapterTrackers as $obj) {
-                        if ($obj->isNew()) {
-                            $collChapterTrackers[] = $obj;
-                        }
-                    }
-                }
-
-                $this->collChapterTrackers = $collChapterTrackers;
-                $this->collChapterTrackersPartial = false;
-            }
+        if ($v === null) {
+            $this->setIdUser(NULL);
+        } else {
+            $this->setIdUser($v->getId());
         }
 
-        return $this->collChapterTrackers;
-    }
+        $this->aUsers = $v;
 
-    /**
-     * Sets a collection of ChildChapterTracker objects related by a one-to-many relationship
-     * to the current object.
-     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
-     * and new objects from the given Propel collection.
-     *
-     * @param      Collection $chapterTrackers A Propel collection.
-     * @param      ConnectionInterface $con Optional connection object
-     * @return $this|ChildChapters The current object (for fluent API support)
-     */
-    public function setChapterTrackers(Collection $chapterTrackers, ConnectionInterface $con = null)
-    {
-        /** @var ChildChapterTracker[] $chapterTrackersToDelete */
-        $chapterTrackersToDelete = $this->getChapterTrackers(new Criteria(), $con)->diff($chapterTrackers);
-
-
-        //since at least one column in the foreign key is at the same time a PK
-        //we can not just set a PK to NULL in the lines below. We have to store
-        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
-        $this->chapterTrackersScheduledForDeletion = clone $chapterTrackersToDelete;
-
-        foreach ($chapterTrackersToDelete as $chapterTrackerRemoved) {
-            $chapterTrackerRemoved->setChapters(null);
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildUsers object, it will not be re-added.
+        if ($v !== null) {
+            $v->addChapterTracker($this);
         }
 
-        $this->collChapterTrackers = null;
-        foreach ($chapterTrackers as $chapterTracker) {
-            $this->addChapterTracker($chapterTracker);
-        }
-
-        $this->collChapterTrackers = $chapterTrackers;
-        $this->collChapterTrackersPartial = false;
 
         return $this;
     }
 
+
     /**
-     * Returns the number of related ChapterTracker objects.
+     * Get the associated ChildUsers object
      *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct
-     * @param      ConnectionInterface $con
-     * @return int             Count of related ChapterTracker objects.
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildUsers The associated ChildUsers object.
      * @throws PropelException
      */
-    public function countChapterTrackers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    public function getUsers(ConnectionInterface $con = null)
     {
-        $partial = $this->collChapterTrackersPartial && !$this->isNew();
-        if (null === $this->collChapterTrackers || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collChapterTrackers) {
-                return 0;
-            }
-
-            if ($partial && !$criteria) {
-                return count($this->getChapterTrackers());
-            }
-
-            $query = ChildChapterTrackerQuery::create(null, $criteria);
-            if ($distinct) {
-                $query->distinct();
-            }
-
-            return $query
-                ->filterByChapters($this)
-                ->count($con);
+        if ($this->aUsers === null && ($this->id_user != 0)) {
+            $this->aUsers = ChildUsersQuery::create()->findPk($this->id_user, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aUsers->addChapterTrackers($this);
+             */
         }
 
-        return count($this->collChapterTrackers);
-    }
-
-    /**
-     * Method called to associate a ChildChapterTracker object to this object
-     * through the ChildChapterTracker foreign key attribute.
-     *
-     * @param  ChildChapterTracker $l ChildChapterTracker
-     * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
-     */
-    public function addChapterTracker(ChildChapterTracker $l)
-    {
-        if ($this->collChapterTrackers === null) {
-            $this->initChapterTrackers();
-            $this->collChapterTrackersPartial = true;
-        }
-
-        if (!$this->collChapterTrackers->contains($l)) {
-            $this->doAddChapterTracker($l);
-
-            if ($this->chapterTrackersScheduledForDeletion and $this->chapterTrackersScheduledForDeletion->contains($l)) {
-                $this->chapterTrackersScheduledForDeletion->remove($this->chapterTrackersScheduledForDeletion->search($l));
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param ChildChapterTracker $chapterTracker The ChildChapterTracker object to add.
-     */
-    protected function doAddChapterTracker(ChildChapterTracker $chapterTracker)
-    {
-        $this->collChapterTrackers[]= $chapterTracker;
-        $chapterTracker->setChapters($this);
-    }
-
-    /**
-     * @param  ChildChapterTracker $chapterTracker The ChildChapterTracker object to remove.
-     * @return $this|ChildChapters The current object (for fluent API support)
-     */
-    public function removeChapterTracker(ChildChapterTracker $chapterTracker)
-    {
-        if ($this->getChapterTrackers()->contains($chapterTracker)) {
-            $pos = $this->collChapterTrackers->search($chapterTracker);
-            $this->collChapterTrackers->remove($pos);
-            if (null === $this->chapterTrackersScheduledForDeletion) {
-                $this->chapterTrackersScheduledForDeletion = clone $this->collChapterTrackers;
-                $this->chapterTrackersScheduledForDeletion->clear();
-            }
-            $this->chapterTrackersScheduledForDeletion[]= clone $chapterTracker;
-            $chapterTracker->setChapters(null);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * If this collection has already been initialized with
-     * an identical criteria, it returns the collection.
-     * Otherwise if this Chapters is new, it will return
-     * an empty collection; or if this Chapters has previously
-     * been saved, it will retrieve related ChapterTrackers from storage.
-     *
-     * This method is protected by default in order to keep the public
-     * api reasonable.  You can provide public methods for those you
-     * actually need in Chapters.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
-     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return ObjectCollection|ChildChapterTracker[] List of ChildChapterTracker objects
-     */
-    public function getChapterTrackersJoinUsers(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
-    {
-        $query = ChildChapterTrackerQuery::create(null, $criteria);
-        $query->joinWith('Users', $joinBehavior);
-
-        return $this->getChapterTrackers($query, $con);
+        return $this->aUsers;
     }
 
     /**
@@ -1535,13 +1179,14 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function clear()
     {
-        if (null !== $this->aSeries) {
-            $this->aSeries->removeChapters($this);
+        if (null !== $this->aChapters) {
+            $this->aChapters->removeChapterTracker($this);
         }
-        $this->id = null;
-        $this->id_series = null;
-        $this->pages_count = null;
-        $this->number = null;
+        if (null !== $this->aUsers) {
+            $this->aUsers->removeChapterTracker($this);
+        }
+        $this->id_chapter = null;
+        $this->id_user = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1560,15 +1205,10 @@ abstract class Chapters implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
-            if ($this->collChapterTrackers) {
-                foreach ($this->collChapterTrackers as $o) {
-                    $o->clearAllReferences($deep);
-                }
-            }
         } // if ($deep)
 
-        $this->collChapterTrackers = null;
-        $this->aSeries = null;
+        $this->aChapters = null;
+        $this->aUsers = null;
     }
 
     /**
@@ -1578,7 +1218,7 @@ abstract class Chapters implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(ChaptersTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(ChapterTrackerTableMap::DEFAULT_STRING_FORMAT);
     }
 
     /**

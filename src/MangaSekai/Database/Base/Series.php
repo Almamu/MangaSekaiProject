@@ -8,8 +8,11 @@ use MangaSekai\Database\Chapters as ChildChapters;
 use MangaSekai\Database\ChaptersQuery as ChildChaptersQuery;
 use MangaSekai\Database\Series as ChildSeries;
 use MangaSekai\Database\SeriesQuery as ChildSeriesQuery;
+use MangaSekai\Database\SeriesTracker as ChildSeriesTracker;
+use MangaSekai\Database\SeriesTrackerQuery as ChildSeriesTrackerQuery;
 use MangaSekai\Database\Map\ChaptersTableMap;
 use MangaSekai\Database\Map\SeriesTableMap;
+use MangaSekai\Database\Map\SeriesTrackerTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -106,6 +109,12 @@ abstract class Series implements ActiveRecordInterface
     protected $collChapterssPartial;
 
     /**
+     * @var        ObjectCollection|ChildSeriesTracker[] Collection to store aggregation of ChildSeriesTracker objects.
+     */
+    protected $collSeriesTrackers;
+    protected $collSeriesTrackersPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
@@ -118,6 +127,12 @@ abstract class Series implements ActiveRecordInterface
      * @var ObjectCollection|ChildChapters[]
      */
     protected $chapterssScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildSeriesTracker[]
+     */
+    protected $seriesTrackersScheduledForDeletion = null;
 
     /**
      * Initializes internal state of MangaSekai\Database\Base\Series object.
@@ -615,6 +630,8 @@ abstract class Series implements ActiveRecordInterface
 
             $this->collChapterss = null;
 
+            $this->collSeriesTrackers = null;
+
         } // if (deep)
     }
 
@@ -740,6 +757,23 @@ abstract class Series implements ActiveRecordInterface
 
             if ($this->collChapterss !== null) {
                 foreach ($this->collChapterss as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->seriesTrackersScheduledForDeletion !== null) {
+                if (!$this->seriesTrackersScheduledForDeletion->isEmpty()) {
+                    \MangaSekai\Database\SeriesTrackerQuery::create()
+                        ->filterByPrimaryKeys($this->seriesTrackersScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->seriesTrackersScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collSeriesTrackers !== null) {
+                foreach ($this->collSeriesTrackers as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -946,6 +980,21 @@ abstract class Series implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->collChapterss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collSeriesTrackers) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'seriesTrackers';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'series_trackers';
+                        break;
+                    default:
+                        $key = 'SeriesTrackers';
+                }
+
+                $result[$key] = $this->collSeriesTrackers->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1195,6 +1244,12 @@ abstract class Series implements ActiveRecordInterface
                 }
             }
 
+            foreach ($this->getSeriesTrackers() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addSeriesTracker($relObj->copy($deepCopy));
+                }
+            }
+
         } // if ($deepCopy)
 
         if ($makeNew) {
@@ -1238,6 +1293,10 @@ abstract class Series implements ActiveRecordInterface
     {
         if ('Chapters' == $relationName) {
             $this->initChapterss();
+            return;
+        }
+        if ('SeriesTracker' == $relationName) {
+            $this->initSeriesTrackers();
             return;
         }
     }
@@ -1468,6 +1527,259 @@ abstract class Series implements ActiveRecordInterface
     }
 
     /**
+     * Clears out the collSeriesTrackers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addSeriesTrackers()
+     */
+    public function clearSeriesTrackers()
+    {
+        $this->collSeriesTrackers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collSeriesTrackers collection loaded partially.
+     */
+    public function resetPartialSeriesTrackers($v = true)
+    {
+        $this->collSeriesTrackersPartial = $v;
+    }
+
+    /**
+     * Initializes the collSeriesTrackers collection.
+     *
+     * By default this just sets the collSeriesTrackers collection to an empty array (like clearcollSeriesTrackers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initSeriesTrackers($overrideExisting = true)
+    {
+        if (null !== $this->collSeriesTrackers && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = SeriesTrackerTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collSeriesTrackers = new $collectionClassName;
+        $this->collSeriesTrackers->setModel('\MangaSekai\Database\SeriesTracker');
+    }
+
+    /**
+     * Gets an array of ChildSeriesTracker objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildSeries is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildSeriesTracker[] List of ChildSeriesTracker objects
+     * @throws PropelException
+     */
+    public function getSeriesTrackers(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collSeriesTrackersPartial && !$this->isNew();
+        if (null === $this->collSeriesTrackers || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collSeriesTrackers) {
+                // return empty collection
+                $this->initSeriesTrackers();
+            } else {
+                $collSeriesTrackers = ChildSeriesTrackerQuery::create(null, $criteria)
+                    ->filterBySeries($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collSeriesTrackersPartial && count($collSeriesTrackers)) {
+                        $this->initSeriesTrackers(false);
+
+                        foreach ($collSeriesTrackers as $obj) {
+                            if (false == $this->collSeriesTrackers->contains($obj)) {
+                                $this->collSeriesTrackers->append($obj);
+                            }
+                        }
+
+                        $this->collSeriesTrackersPartial = true;
+                    }
+
+                    return $collSeriesTrackers;
+                }
+
+                if ($partial && $this->collSeriesTrackers) {
+                    foreach ($this->collSeriesTrackers as $obj) {
+                        if ($obj->isNew()) {
+                            $collSeriesTrackers[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collSeriesTrackers = $collSeriesTrackers;
+                $this->collSeriesTrackersPartial = false;
+            }
+        }
+
+        return $this->collSeriesTrackers;
+    }
+
+    /**
+     * Sets a collection of ChildSeriesTracker objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $seriesTrackers A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildSeries The current object (for fluent API support)
+     */
+    public function setSeriesTrackers(Collection $seriesTrackers, ConnectionInterface $con = null)
+    {
+        /** @var ChildSeriesTracker[] $seriesTrackersToDelete */
+        $seriesTrackersToDelete = $this->getSeriesTrackers(new Criteria(), $con)->diff($seriesTrackers);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->seriesTrackersScheduledForDeletion = clone $seriesTrackersToDelete;
+
+        foreach ($seriesTrackersToDelete as $seriesTrackerRemoved) {
+            $seriesTrackerRemoved->setSeries(null);
+        }
+
+        $this->collSeriesTrackers = null;
+        foreach ($seriesTrackers as $seriesTracker) {
+            $this->addSeriesTracker($seriesTracker);
+        }
+
+        $this->collSeriesTrackers = $seriesTrackers;
+        $this->collSeriesTrackersPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related SeriesTracker objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related SeriesTracker objects.
+     * @throws PropelException
+     */
+    public function countSeriesTrackers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collSeriesTrackersPartial && !$this->isNew();
+        if (null === $this->collSeriesTrackers || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collSeriesTrackers) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getSeriesTrackers());
+            }
+
+            $query = ChildSeriesTrackerQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterBySeries($this)
+                ->count($con);
+        }
+
+        return count($this->collSeriesTrackers);
+    }
+
+    /**
+     * Method called to associate a ChildSeriesTracker object to this object
+     * through the ChildSeriesTracker foreign key attribute.
+     *
+     * @param  ChildSeriesTracker $l ChildSeriesTracker
+     * @return $this|\MangaSekai\Database\Series The current object (for fluent API support)
+     */
+    public function addSeriesTracker(ChildSeriesTracker $l)
+    {
+        if ($this->collSeriesTrackers === null) {
+            $this->initSeriesTrackers();
+            $this->collSeriesTrackersPartial = true;
+        }
+
+        if (!$this->collSeriesTrackers->contains($l)) {
+            $this->doAddSeriesTracker($l);
+
+            if ($this->seriesTrackersScheduledForDeletion and $this->seriesTrackersScheduledForDeletion->contains($l)) {
+                $this->seriesTrackersScheduledForDeletion->remove($this->seriesTrackersScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildSeriesTracker $seriesTracker The ChildSeriesTracker object to add.
+     */
+    protected function doAddSeriesTracker(ChildSeriesTracker $seriesTracker)
+    {
+        $this->collSeriesTrackers[]= $seriesTracker;
+        $seriesTracker->setSeries($this);
+    }
+
+    /**
+     * @param  ChildSeriesTracker $seriesTracker The ChildSeriesTracker object to remove.
+     * @return $this|ChildSeries The current object (for fluent API support)
+     */
+    public function removeSeriesTracker(ChildSeriesTracker $seriesTracker)
+    {
+        if ($this->getSeriesTrackers()->contains($seriesTracker)) {
+            $pos = $this->collSeriesTrackers->search($seriesTracker);
+            $this->collSeriesTrackers->remove($pos);
+            if (null === $this->seriesTrackersScheduledForDeletion) {
+                $this->seriesTrackersScheduledForDeletion = clone $this->collSeriesTrackers;
+                $this->seriesTrackersScheduledForDeletion->clear();
+            }
+            $this->seriesTrackersScheduledForDeletion[]= clone $seriesTracker;
+            $seriesTracker->setSeries(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Series is new, it will return
+     * an empty collection; or if this Series has previously
+     * been saved, it will retrieve related SeriesTrackers from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Series.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildSeriesTracker[] List of ChildSeriesTracker objects
+     */
+    public function getSeriesTrackersJoinUsers(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildSeriesTrackerQuery::create(null, $criteria);
+        $query->joinWith('Users', $joinBehavior);
+
+        return $this->getSeriesTrackers($query, $con);
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
@@ -1502,9 +1814,15 @@ abstract class Series implements ActiveRecordInterface
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collSeriesTrackers) {
+                foreach ($this->collSeriesTrackers as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
         $this->collChapterss = null;
+        $this->collSeriesTrackers = null;
     }
 
     /**

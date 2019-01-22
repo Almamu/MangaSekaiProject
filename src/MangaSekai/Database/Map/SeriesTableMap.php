@@ -165,6 +165,13 @@ class SeriesTableMap extends TableMap
     1 => ':id',
   ),
 ), 'CASCADE', 'CASCADE', 'Chapterss', false);
+        $this->addRelation('SeriesTracker', '\\MangaSekai\\Database\\SeriesTracker', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':id_series',
+    1 => ':id',
+  ),
+), 'CASCADE', 'CASCADE', 'SeriesTrackers', false);
     } // buildRelations()
     /**
      * Method to invalidate the instance pool of all tables related to series     * by a foreign key with ON DELETE CASCADE
@@ -174,6 +181,7 @@ class SeriesTableMap extends TableMap
         // Invalidate objects in related instance pools,
         // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
         ChaptersTableMap::clearInstancePool();
+        SeriesTrackerTableMap::clearInstancePool();
     }
 
     /**

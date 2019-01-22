@@ -9,9 +9,11 @@
         const RECORDS_PER_PAGE = 20;
     
         use \MangaSekai\JSON\PaginationResponse;
+        use \MangaSekai\Controllers\Security;
     
         function list (\MangaSekai\HTTP\Request $request)
         {
+            $this->validateUser ($request);
             $page = 1;
         
             if ($request->hasQueryStringParameter ('page') === true)
@@ -34,6 +36,8 @@
         
         function pages (\MangaSekai\HTTP\Request $request)
         {
+            $this->validateUser ($request);
+            
             // make sure the chapter exists first
             $serieid = $request->getParameter (':serieid');
             $chapterid = $request->getParameter (':chapterid');

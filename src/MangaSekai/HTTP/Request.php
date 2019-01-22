@@ -47,7 +47,7 @@
             
             if (array_key_exists ('Content-Length', $headers) === true)
             {
-                if (array_key_exists ('Content-Type', $headers) === true)
+                if (array_key_exists ('Content-Type', $headers) === true && $headers ['Content-Type'] == \MangaSekai\HTTP\Response::JSON)
                 {
                     $bodyContent = json_decode (file_get_contents ('php://input'), true, 512, JSON_BIGINT_AS_STRING | JSON_OBJECT_AS_ARRAY);
                 }
