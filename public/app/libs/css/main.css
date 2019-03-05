@@ -1,0 +1,35 @@
+div.series-entry
+{
+    display: inline-block;
+}
+
+img.series-image,
+.series-entry
+{
+    width: 160px;
+}
+
+img.series-main-image
+{
+    max-width: 250px;
+}
+
+.series-name-parent {
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+.series-name {
+    text-overflow: ellipsis;
+    max-width: 100%;
+    white-space: nowrap !important;
+    overflow: hidden;
+}
+
+@media screen and (max-width: 410px)
+{
+    img.series-image,
+    .series-entry {
+        width: 120px;
+    }
+}

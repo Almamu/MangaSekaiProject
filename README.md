@@ -1,0 +1,1 @@
+This project uses bootstrap template from https://startbootstrap.com/themes/sb-admin-2/

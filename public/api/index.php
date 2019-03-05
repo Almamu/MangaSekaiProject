@@ -14,7 +14,7 @@
     }
     
     $path = $_SERVER ['PATH_INFO'] ?? '/installer';
-    
+
     try
     {
         \MangaSekai\API\Routing\Resolver::makeFromConfig ()->resolve ($path);

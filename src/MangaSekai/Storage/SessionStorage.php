@@ -10,6 +10,8 @@
         
         function __construct (string $token)
         {
+            $this->token = $token;
+
             if (session_name () != $token)
             {
                 session_name ($token);

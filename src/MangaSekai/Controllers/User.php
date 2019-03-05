@@ -41,7 +41,7 @@
                 \MangaSekai\Storage\SessionStorage::generateToken ()
             );
             
-            $storage->set ('auth_time', time ());
+            $storage->set ('auth_time', strtotime ('+1 day'));
             $storage->set ('id', $user->getId ());
             
             $request
@@ -52,7 +52,8 @@
                         'token' => $storage->getToken (),
                         'time' => $storage->get ('auth_time')
                     )
-                );
+                )
+                ->printOutput();
         }
         
         function refresh (\MangaSekai\HTTP\Request $request)
@@ -68,6 +69,7 @@
                         'token' => $storage->getToken (),
                         'time' => $storage->get ('auth_time')
                     )
-                );
+                )
+                ->printOutput();
         }
     };

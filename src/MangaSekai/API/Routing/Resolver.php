@@ -31,24 +31,29 @@
                 
                 $this->routesList [] = array (
                     'controller' => $info ['controller'],
-                    'regex' => self::routeToRegExp ($route, $info ['parameters'] ?? array ()),
+                    'regex' => self::routeToRegExp ($route),
                     'route' => $route,
-                    'parameters' => array_keys ($info ['parameters'] ?? array ()),
+                    'parameters' => self::extractParameterNames ($route),
                     'function' => $info ['function'] ?? 'run'
                 );
             }
         }
         
-        private static function routeToRegExp ($path, array $parameters)
+        private static function routeToRegExp ($path)
         {
-            $string = preg_quote ($path);
-            
-            foreach ($parameters as $name => $regex)
-            {
-                $string = preg_replace ('/\\\\' . $name . '/', '(' . $regex . ')', $string);
-            }
-            
-            return "@^" . $string . "$@D";
+            return "@^" . preg_replace ('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_%]+)', preg_quote ($path)) . "$@D";
+        }
+
+        private static function extractParameterNames ($path)
+        {
+            $matches = array ();
+
+            preg_match_all ('/:([a-zA-Z0-9\_\-]+)/', $path, $matches);
+
+            // ignore the first element as it's not important
+            array_shift ($matches);
+
+            return array_shift ($matches);
         }
     
         /**
@@ -56,7 +61,7 @@
          *
          * @param string $path The path to resolve
          *
-         * @return \Atatiki\HTTP\Request
+         * @return void
          * @throws \Exception
          */
         function resolve (string $path)
@@ -64,24 +69,24 @@
             foreach ($this->routesList as $route)
             {
                 $matches = array ();
-                
+
                 if (preg_match ($route ['regex'], $path, $matches))
                 {
                     if (class_exists ($route ['controller']) == false)
                     {
                         throw new \Exception ("Controller cannot be found");
                     }
-                    
+
                     array_shift ($matches);
 
                     $request = \MangaSekai\HTTP\Request::makeRequestFromServerGlobal (array_combine ($route ['parameters'], $matches));
-                    
                     $controller = new $route ['controller'];
 
-                    return $controller->{$route ['function']} ($request);
+                    $controller->{$route ['function']} ($request);
+                    return;
                 }
             }
-            
+
             throw new \Exception ('Controller for ' . $path . ' not found');
         }
     

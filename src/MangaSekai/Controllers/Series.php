@@ -43,7 +43,7 @@
         function info (\MangaSekai\HTTP\Request $request)
         {
             $this->validateUser ($request);
-            $serie = SeriesQuery::create ()->findOneById ((int) $request->getParameter (':id'));
+            $serie = SeriesQuery::create ()->findOneById ((int) $request->getParameter ('id'));
             
             if ($serie == null)
             {

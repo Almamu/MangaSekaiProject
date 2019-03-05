@@ -131,7 +131,7 @@
             switch ($this->getContentType ())
             {
                 case self::JSON:
-                    echo json_encode ($this->content, JSON_BIGINT_AS_STRING | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+                    echo json_encode ($this->content, JSON_BIGINT_AS_STRING | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
                     break;
                 default:
                     echo $this->content;

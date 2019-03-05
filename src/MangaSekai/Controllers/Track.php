@@ -39,7 +39,8 @@
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
                         $track->toArray ()
-                    );
+                    )
+                    ->printOutput();
             }
             else
             {
@@ -49,7 +50,8 @@
                     ->setOutput (
                         SeriesTrackerQuery::create ()
                             ->findByIdUser ($storage->get ('id'))
-                    );
+                    )
+                    ->printOutput();
             }
         }
         
@@ -61,7 +63,7 @@
             {
                 // first search the chapter by ids
                 $chapter = ChaptersQuery::create ()
-                    ->filterByIdSeries ($request->get (':id'))
+                    ->filterByIdSeries ($request->getParameter ('id'))
                     ->filterById ($request->getBodyData() ['chapterid'])
                     ->findOne ();
                 
@@ -81,7 +83,8 @@
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
                         $track->toArray ()
-                    );
+                    )
+                    ->printOutput();
             }
             else
             {
@@ -91,11 +94,12 @@
                     ->setOutput(
                         ChapterTrackerQuery::create ()
                             ->useChaptersQuery ()
-                                ->filterByIdSeries ($request->getParameter (':id'))
+                                ->filterByIdSeries ($request->getParameter ('id'))
                             ->endUse ()
                             ->filterByIdUser ($storage->get ('id'))
                         ->find ()
-                    );
+                    )
+                    ->printOutput();
             }
         }
     };

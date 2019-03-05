@@ -27,7 +27,7 @@
                 ->setOutput (
                     $this->paginatedResponse (
                         ChaptersQuery::create ()
-                                     ->filterByIdSeries ($request->getParameter (':id'))
+                                     ->filterByIdSeries ($request->getParameter ('id'))
                                      ->paginate ($page, self::RECORDS_PER_PAGE)
                     )
                 )
@@ -39,8 +39,8 @@
             $this->validateUser ($request);
             
             // make sure the chapter exists first
-            $serieid = $request->getParameter (':serieid');
-            $chapterid = $request->getParameter (':chapterid');
+            $serieid = $request->getParameter ('serieid');
+            $chapterid = $request->getParameter ('chapterid');
             
             $chapter = ChaptersQuery::create ()
                                     ->findOneById ((int) $chapterid);
