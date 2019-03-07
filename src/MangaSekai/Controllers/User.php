@@ -7,7 +7,7 @@
     {
         use \MangaSekai\Controllers\Security;
         
-        function login (\MangaSekai\HTTP\Request $request)
+        function login (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             if ($request->hasHeader ('Authorization') === false)
             {
@@ -44,8 +44,7 @@
             $storage->set ('auth_time', strtotime ('+1 day'));
             $storage->set ('id', $user->getId ());
             
-            $request
-                ->makeResponse ()
+            $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput (
                     array (
@@ -56,13 +55,12 @@
                 ->printOutput();
         }
         
-        function refresh (\MangaSekai\HTTP\Request $request)
+        function refresh (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $storage = $this->validateUser ($request);
             $storage->set ('auth_time', time ());
             
-            $request
-                ->makeResponse ()
+            $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput (
                     array (

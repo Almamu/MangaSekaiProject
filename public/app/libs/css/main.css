@@ -11,6 +11,7 @@ img.series-image,
 
 img.series-main-image
 {
+    width: 100%;
     max-width: 250px;
 }
 
@@ -24,6 +25,11 @@ img.series-main-image
     max-width: 100%;
     white-space: nowrap !important;
     overflow: hidden;
+}
+
+.page-container img {
+    max-width: 900px;
+    width: 100%;
 }
 
 @media screen and (max-width: 410px)

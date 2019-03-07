@@ -82,7 +82,7 @@
                     $request = \MangaSekai\HTTP\Request::makeRequestFromServerGlobal (array_combine ($route ['parameters'], $matches));
                     $controller = new $route ['controller'];
 
-                    $controller->{$route ['function']} ($request);
+                    $controller->{$route ['function']} ($request, $request->makeResponse ());
                     return;
                 }
             }

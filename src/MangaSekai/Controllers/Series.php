@@ -11,7 +11,7 @@
         use \MangaSekai\JSON\PaginationResponse;
         use \MangaSekai\Controllers\Security;
         
-        function list (\MangaSekai\HTTP\Request $request)
+        function list (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $this->validateUser ($request);
             
@@ -28,8 +28,7 @@
                     $page = $request->getQueryStringParameter ('page');
                 }
                 
-                $request
-                    ->makeResponse ()
+                $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
                         $this->paginatedResponse (
@@ -40,7 +39,7 @@
             }
         }
         
-        function info (\MangaSekai\HTTP\Request $request)
+        function info (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $this->validateUser ($request);
             $serie = SeriesQuery::create ()->findOneById ((int) $request->getParameter ('id'));
@@ -50,8 +49,7 @@
                 throw new \Exception ('The specified series does not exist');
             }
             
-            $request
-                ->makeResponse ()
+            $response
                 ->setcontentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput ($serie->toArray ())
                 ->printOutput ();

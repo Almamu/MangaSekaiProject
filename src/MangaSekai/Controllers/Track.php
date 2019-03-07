@@ -14,7 +14,7 @@
     {
         use \MangaSekai\Controllers\Security;
         
-        function series (\MangaSekai\HTTP\Request $request)
+        function series (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $storage = $this->validateUser ($request);
             
@@ -34,8 +34,7 @@
                     ->setIdUser ($storage->get ('id'))
                     ->save ();
                 
-                $request
-                    ->makeResponse ()
+                $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
                         $track->toArray ()
@@ -44,8 +43,7 @@
             }
             else
             {
-                $request
-                    ->makeResponse ()
+                $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
                         SeriesTrackerQuery::create ()
@@ -55,7 +53,7 @@
             }
         }
         
-        function chapters (\MangaSekai\HTTP\Request $request)
+        function chapters (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $storage = $this->validateUser ($request);
             
@@ -78,8 +76,7 @@
                     ->setIdUser ($storage->get ('id'))
                     ->save ();
                 
-                $request
-                    ->makeResponse ()
+                $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
                         $track->toArray ()
@@ -88,8 +85,7 @@
             }
             else
             {
-                $request
-                    ->makeResponse ()
+                $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput(
                         ChapterTrackerQuery::create ()

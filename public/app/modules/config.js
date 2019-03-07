@@ -4,7 +4,8 @@ angular.module ('mangasekai', [
     'ngRoute',
     'ngStorage',
     'mangasekai.login',
-    'mangasekai.dashboard'
+    'mangasekai.dashboard',
+    'mangasekai.viewer'
 ])
 .config (['$routeProvider', function ($routeProvider)
 {

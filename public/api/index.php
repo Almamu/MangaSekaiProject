@@ -12,14 +12,9 @@
     {
         putenv ('PAGE_PATH=' . getenv ('PROJECT_PATH') . 'public/live/%d/chapter/%d/page/%d.jpg');
     }
-    
+
+    putenv ('APP_ENVIRONMENT=dev');
+
     $path = $_SERVER ['PATH_INFO'] ?? '/installer';
 
-    try
-    {
-        \MangaSekai\API\Routing\Resolver::makeFromConfig ()->resolve ($path);
-    }
-    catch (\Exception $ex)
-    {
-        var_dump ($ex);
-    }
+    \MangaSekai\API\Routing\Resolver::makeFromConfig ()->resolve ($path);

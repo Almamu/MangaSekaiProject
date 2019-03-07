@@ -8,13 +8,12 @@
     {
         use \MangaSekai\Controllers\Security;
         
-        function start (\MangaSekai\HTTP\Request $request)
+        function start (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
-            $response = $request->makeResponse ();
             $response->setContentType (\MangaSekai\HTTP\Response::JSON);
         }
         
-        function upload (\MangaSekai\HTTP\Request $request)
+        function upload (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             // we can discard the returned data from this function
             $this->validateUser ($request);
@@ -104,8 +103,7 @@
                 ->setChapterCount ($chapters->count ())
                 ->save ();
             
-            $request
-                ->makeResponse ()
+            $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput (array ());
         }
