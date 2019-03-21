@@ -13,6 +13,17 @@
                     Loading...
                 </div>
                 <div ng-show="loaded == 'ok'">
+
+                    <div class="row my-5">
+                        <div class="col-6 text-left">
+                            <a ng-show="previous.Id"  href="#!/serie/{{ previous.IdSeries }}/chapter/{{ previous.Id }}" class="btn btn-primary">Previous Chapter</a>
+                        </div>
+
+                        <div class="col-6 text-right">
+                            <a ng-show="next.Id" href="#!/serie/{{ next.IdSeries }}/chapter/{{ next.Id }}" class="btn btn-primary">Next Chapter</a>
+                        </div>
+                    </div>
+                    
                     <div ng-repeat="page in pages" class="page-container mb-2">
                         <img ng-src="{{ page }}" />
                     </div>

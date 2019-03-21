@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module ('mangasekai', [
+    'ngAnimate',
     'ngRoute',
     'ngStorage',
     'angularMoment',
