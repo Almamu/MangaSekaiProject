@@ -16,7 +16,7 @@ angular.module ('mangasekai.login', [
 {
     AuthenticationService.init ();
 }])
-.service ('AuthenticationService', ['$http', '$localStorage', '$q', 'API', function ($http, $localStorage, $q, API)
+.service ('AuthenticationService', ['$http', '$localStorage', '$q', 'API', 'moment', function ($http, $localStorage, $q, API, moment)
 {
     function setupHttpHeaders ()
     {
@@ -62,7 +62,10 @@ angular.module ('mangasekai.login', [
             if (!('token' in $localStorage.session))
                 return false;
 
-            return true;
+            if (!('expire_time' in $localStorage.session))
+                return false;
+
+            return moment.utc ().isBefore (moment.unix ($localStorage.session.expire_time));
         }
     }
 }])

@@ -15,19 +15,22 @@ img.series-main-image
     max-width: 250px;
 }
 
-.series-name-parent {
+.series-name-parent
+{
     overflow: hidden !important;
     text-overflow: ellipsis;
 }
 
-.series-name {
+.series-name
+{
     text-overflow: ellipsis;
     max-width: 100%;
     white-space: nowrap !important;
     overflow: hidden;
 }
 
-.page-container img {
+.page-container img
+{
     max-width: 900px;
     width: 100%;
 }
@@ -35,7 +38,13 @@ img.series-main-image
 @media screen and (max-width: 410px)
 {
     img.series-image,
-    .series-entry {
+    .series-entry
+    {
         width: 120px;
     }
+}
+
+ul#accordionSidebar
+{
+    height: 100%;
 }

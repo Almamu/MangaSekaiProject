@@ -3,6 +3,8 @@
 angular.module ('mangasekai', [
     'ngRoute',
     'ngStorage',
+    'angularMoment',
+    'mangasekai.loader',
     'mangasekai.login',
     'mangasekai.dashboard',
     'mangasekai.viewer'

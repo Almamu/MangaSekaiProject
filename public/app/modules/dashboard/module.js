@@ -70,5 +70,5 @@ angular.module ('mangasekai.dashboard', [])
                 $scope.list.pagination = result.data;
             }
         }
-    )
+    );
 }]);

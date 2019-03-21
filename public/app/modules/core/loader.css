@@ -1,0 +1,110 @@
+.ion-loader {
+  display: block;
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: 50%;
+  top: 90%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background: #FFF;
+  box-shadow: 0 3px 15px -5px rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  transition: all 500ms cubic-bezier(0.5, 1.25, 0.5, 1.25);
+}
+.ion-loader.ion-show {
+  top: 50%;
+  opacity: 1;
+  visibility: visible;
+}
+.ion-loader.ion-hide {
+  top: 90%;
+  opacity: 0;
+  visibility: hidden;
+}
+.ion-loader .ion-loader-circle {
+  -webkit-animation: rotate 2s linear infinite;
+          animation: rotate 2s linear infinite;
+  position: relative;
+  height: 80px;
+  width: 80px;
+}
+.ion-loader .ion-loader-circle .ion-loader-path {
+  position: absolute;
+  stroke-dasharray: 1,200;
+  stroke-dashoffset: 0;
+  stroke-linecap: square;
+  stroke-width: 5px;
+  -webkit-animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+          animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+}
+
+@-webkit-keyframes rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes dash {
+  0% {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124;
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124;
+  }
+}
+@-webkit-keyframes color {
+  100%, 0% {
+    stroke: #0193d7;
+  }
+  40% {
+    stroke: #40c2fe;
+  }
+  66% {
+    stroke: #0193d7;
+  }
+  80%, 90% {
+    stroke: #014e71;
+  }
+}
+@keyframes color {
+  100%, 0% {
+    stroke: #0193d7;
+  }
+  40% {
+    stroke: #40c2fe;
+  }
+  66% {
+    stroke: #0193d7;
+  }
+  80%, 90% {
+    stroke: #014e71;
+  }
+}

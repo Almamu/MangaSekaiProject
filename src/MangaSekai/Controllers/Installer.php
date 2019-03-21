@@ -59,7 +59,7 @@
                 // now get info with the images extension and convert it to JPG if necessary
                 $imageType = exif_imagetype ($information ['tmpname']);
                 
-                // WARNING, GOTO's AND LABELS ARE EVIL, REALLY EVIL, PLEASE REFRAIN TO USE THEM UNLESS EXPLICITLY NEEDED LIKE HERE
+                // WARNING, GOTO's AND LABELS ARE EVIL, REALLY EVIL, PLEASE REFRAIN FROM USING THEM UNLESS EXPLICITLY NEEDED LIKE HERE
                 switch ($imageType)
                 {
                     case IMAGETYPE_JPEG:

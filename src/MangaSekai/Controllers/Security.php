@@ -20,7 +20,7 @@
             $token = substr ($authorization, strlen ('Bearer '));
             $storage = new \MangaSekai\Storage\SessionStorage ($token);
             
-            if ($storage->get ('auth_time') < time ())
+            if ($storage->get ('expire_time') < time ())
             {
                 throw new \Exception ('This session has expired');
             }
