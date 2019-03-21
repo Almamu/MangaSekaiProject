@@ -7,6 +7,7 @@
                 <button id="goback" class="btn btn-link rounded-circle mr-3" ng-click="goBack ()">
                     <i class="fa fa-arrow-left"></i>
                 </button>
+                <h4 class="my-2" ng-show="serie.Name">{{ serie.Name }} - Chapter {{ chapter.Number }}</h4>
             </nav>
             <div class="container-fluid text-center">
                 <div ng-show="loaded == 'loading'">
@@ -23,7 +24,7 @@
                             <a ng-show="next.Id" href="#!/serie/{{ next.IdSeries }}/chapter/{{ next.Id }}" class="btn btn-primary">Next Chapter</a>
                         </div>
                     </div>
-                    
+
                     <div ng-repeat="page in pages" class="page-container mb-2">
                         <img ng-src="{{ page }}" />
                     </div>
