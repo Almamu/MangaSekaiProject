@@ -3,7 +3,7 @@
 angular.module ('mangasekai.login', [
     'ngStorage'
 ])
-.config (['$routeProvider', function ($routeProvider)
+.config (['$routeProvider', '$httpProvider', function ($routeProvider, $httpProvider)
 {
     $routeProvider.when (
         '/login', {
@@ -11,6 +11,29 @@ angular.module ('mangasekai.login', [
             templateUrl: '/app/modules/login/login.html'
         }
     );
+
+    $httpProvider.interceptors.push ('authenticationCheck');
+}])
+.factory ('authenticationCheck', [
+'$q', '$location',
+function ($q, $location)
+{
+    return {
+        response: function (config)
+        {
+            if (config.headers ('Content-Type') == 'application/json' && 'data' in config && 'code' in config.data && config.data.code == 100)
+                $location.path ('/login/');
+
+            return config || $q.when (config);
+        },
+        responseError: function (rejection)
+        {
+            if (rejection.headers ('Content-Type') == 'application/json' && 'data' in rejection && 'code' in rejection.data && rejection.data.code == 100)
+                $location.path ('/login/');
+
+            return $q.reject (rejection);
+        }
+    };
 }])
 .run (['AuthenticationService', function (AuthenticationService)
 {

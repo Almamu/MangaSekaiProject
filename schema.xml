@@ -38,6 +38,7 @@
     <column name="chapter_count" phpName="ChapterCount" type="INTEGER" required="true"/>
     <column name="pages_count" phpName="PagesCount" type="INTEGER" required="true"/>
     <column name="description" phpName="Description" type="LONGVARCHAR" required="true"/>
+    <column name="synced" phpName="Synced" type="INTEGER" size="1" sqlType="BOOLEAN" required="true" default="0"/>
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
     </vendor>

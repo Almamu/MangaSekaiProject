@@ -25,7 +25,7 @@
                 array_key_exists ('series', $bodyData) === false
             )
             {
-                throw new \Exception ('The upload is missing information');
+                throw new \Exception ('The upload is missing information', \MangaSekai\API\ErrorCodes::CALL_MISSING_PARAMETERS);
             }
             
             // check that the chapter and series id are correct
@@ -39,7 +39,7 @@
             
             if ($chapter === null || $serie === null)
             {
-                throw new \Exception ('The chapter you\'re trying to upload files to doesn\'t exist');
+                throw new \Exception ('The chapter you\'re trying to upload files to doesn\'t exist', \MangaSekai\API\ErrorCodes::UNKNOWN_CHAPTER);
             }
             
             $pages = $bodyData ['pages'];
@@ -84,7 +84,7 @@
                         break;
                         
                     default:
-                        throw new \Exception ('Unrecognized image format (' . $imageType . '). Cannot perform chapter upload');
+                        throw new \Exception ('Unrecognized image format (' . $imageType . '). Cannot perform chapter upload', \MangaSekai\API\ErrorCodes::UNKNOWN_IMAGE_FORMAT);
                 }
                 
                 $i ++;
@@ -105,6 +105,7 @@
             
             $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
-                ->setOutput (array ());
+                ->setOutput (array ())
+                ->printOutput ();
         }
     };

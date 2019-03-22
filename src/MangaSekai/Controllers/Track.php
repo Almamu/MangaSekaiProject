@@ -25,7 +25,7 @@
                 
                 if ($serie === null)
                 {
-                    throw new \Exception ('Cannot find the specified serie in the database');
+                    throw new \Exception ('Cannot find the specified serie in the database', \MangaSekai\API\ErrorCodes::UNKNOWN_SERIES);
                 }
                 
                 $track = new SeriesTracker ();
@@ -67,7 +67,7 @@
                 
                 if ($chapter === null)
                 {
-                    throw new \Exception ('Cannot find the specified chapter in the database');
+                    throw new \Exception ('Cannot find the specified chapter in the database', \MangaSekai\API\ErrorCodes::UNKNOWN_CHAPTER);
                 }
                 
                 $track = new ChapterTracker ();

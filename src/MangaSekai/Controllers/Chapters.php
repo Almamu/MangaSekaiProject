@@ -48,7 +48,7 @@
 
             if ($chapter == null || $chapter->getIdSeries () != $serieid)
             {
-                throw new \Exception ('The specified chapter doesn\'t exit');
+                throw new \Exception ('The specified chapter doesn\'t exit', \MangaSekai\API\ErrorCodes::UNKNOWN_CHAPTER);
             }
 
             if ($chapter->getNumber () > 1)

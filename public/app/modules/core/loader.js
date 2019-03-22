@@ -9,28 +9,50 @@ function ($q, $rootScope, MANGASEKAI_LOADER_FINISH_EVENT, MANGASEKAI_LOADER_STAR
 {
     let requestQueue = 0;
 
+    function increaseReference ()
+    {
+        if (requestQueue === 0)
+        {
+            $rootScope.$broadcast (MANGASEKAI_LOADER_START_EVENT);
+        }
+
+        requestQueue ++;
+    }
+
+    function decreaseReference ()
+    {
+        requestQueue --;
+
+        if (requestQueue === 0)
+        {
+            $rootScope.$broadcast (MANGASEKAI_LOADER_FINISH_EVENT);
+        }
+    }
+
     return {
         request: function (config)
         {
-            if (requestQueue === 0)
-            {
-                $rootScope.$broadcast (MANGASEKAI_LOADER_START_EVENT);
-            }
-
-            requestQueue ++;
+            increaseReference ();
 
             return config || $q.when (config);
         },
         response: function (config)
         {
-            requestQueue --;
-
-            if (requestQueue === 0)
-            {
-                $rootScope.$broadcast (MANGASEKAI_LOADER_FINISH_EVENT);
-            }
+            decreaseReference ();
 
             return config || $q.when (config);
+        },
+        requestError: function (rejection)
+        {
+            decreaseReference ();
+
+            return $q.reject (rejection);
+        },
+        responseError: function (rejection)
+        {
+            decreaseReference ();
+
+            return $q.reject (rejection);
         }
     }
 }])

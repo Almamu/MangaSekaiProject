@@ -7,14 +7,14 @@
         {
             if ($request->hasHeader ('Authorization') === false)
             {
-                throw new \Exception ('Authorization header not specified');
+                throw new \Exception ('Authorization header not specified', \MangaSekai\API\ErrorCodes::AUTHENTICATION);
             }
             
             $authorization = $request->getHeader ('Authorization');
             
             if (strpos ($authorization, 'Bearer ') !== 0)
             {
-                throw new \Exception ('Expected bearer authorization');
+                throw new \Exception ('Expected bearer authorization', \MangaSekai\API\ErrorCodes::AUTHENTICATION);
             }
             
             $token = substr ($authorization, strlen ('Bearer '));
@@ -22,7 +22,7 @@
             
             if ($storage->get ('expire_time') < time ())
             {
-                throw new \Exception ('This session has expired');
+                throw new \Exception ('This session has expired', \MangaSekai\API\ErrorCodes::AUTHENTICATION);
             }
             
             return $storage;

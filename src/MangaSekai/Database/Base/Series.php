@@ -103,6 +103,14 @@ abstract class Series implements ActiveRecordInterface
     protected $description;
 
     /**
+     * The value for the synced field.
+     *
+     * Note: this column has a database default value of: 0
+     * @var        int
+     */
+    protected $synced;
+
+    /**
      * @var        ObjectCollection|ChildChapters[] Collection to store aggregation of ChildChapters objects.
      */
     protected $collChapterss;
@@ -135,10 +143,23 @@ abstract class Series implements ActiveRecordInterface
     protected $seriesTrackersScheduledForDeletion = null;
 
     /**
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see __construct()
+     */
+    public function applyDefaultValues()
+    {
+        $this->synced = 0;
+    }
+
+    /**
      * Initializes internal state of MangaSekai\Database\Base\Series object.
+     * @see applyDefaults()
      */
     public function __construct()
     {
+        $this->applyDefaultValues();
     }
 
     /**
@@ -410,6 +431,16 @@ abstract class Series implements ActiveRecordInterface
     }
 
     /**
+     * Get the [synced] column value.
+     *
+     * @return int
+     */
+    public function getSynced()
+    {
+        return $this->synced;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -510,6 +541,26 @@ abstract class Series implements ActiveRecordInterface
     } // setDescription()
 
     /**
+     * Set the value of [synced] column.
+     *
+     * @param int $v new value
+     * @return $this|\MangaSekai\Database\Series The current object (for fluent API support)
+     */
+    public function setSynced($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->synced !== $v) {
+            $this->synced = $v;
+            $this->modifiedColumns[SeriesTableMap::COL_SYNCED] = true;
+        }
+
+        return $this;
+    } // setSynced()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -519,6 +570,10 @@ abstract class Series implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->synced !== 0) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return TRUE
         return true;
     } // hasOnlyDefaultValues()
@@ -559,6 +614,9 @@ abstract class Series implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : SeriesTableMap::translateFieldName('Description', TableMap::TYPE_PHPNAME, $indexType)];
             $this->description = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SeriesTableMap::translateFieldName('Synced', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->synced = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -567,7 +625,7 @@ abstract class Series implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 5; // 5 = SeriesTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = SeriesTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\Series'), 0, $e);
@@ -821,6 +879,9 @@ abstract class Series implements ActiveRecordInterface
         if ($this->isColumnModified(SeriesTableMap::COL_DESCRIPTION)) {
             $modifiedColumns[':p' . $index++]  = 'description';
         }
+        if ($this->isColumnModified(SeriesTableMap::COL_SYNCED)) {
+            $modifiedColumns[':p' . $index++]  = 'synced';
+        }
 
         $sql = sprintf(
             'INSERT INTO series (%s) VALUES (%s)',
@@ -846,6 +907,9 @@ abstract class Series implements ActiveRecordInterface
                         break;
                     case 'description':
                         $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
+                        break;
+                    case 'synced':
+                        $stmt->bindValue($identifier, $this->synced, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -924,6 +988,9 @@ abstract class Series implements ActiveRecordInterface
             case 4:
                 return $this->getDescription();
                 break;
+            case 5:
+                return $this->getSynced();
+                break;
             default:
                 return null;
                 break;
@@ -959,6 +1026,7 @@ abstract class Series implements ActiveRecordInterface
             $keys[2] => $this->getChapterCount(),
             $keys[3] => $this->getPagesCount(),
             $keys[4] => $this->getDescription(),
+            $keys[5] => $this->getSynced(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1045,6 +1113,9 @@ abstract class Series implements ActiveRecordInterface
             case 4:
                 $this->setDescription($value);
                 break;
+            case 5:
+                $this->setSynced($value);
+                break;
         } // switch()
 
         return $this;
@@ -1085,6 +1156,9 @@ abstract class Series implements ActiveRecordInterface
         }
         if (array_key_exists($keys[4], $arr)) {
             $this->setDescription($arr[$keys[4]]);
+        }
+        if (array_key_exists($keys[5], $arr)) {
+            $this->setSynced($arr[$keys[5]]);
         }
     }
 
@@ -1141,6 +1215,9 @@ abstract class Series implements ActiveRecordInterface
         }
         if ($this->isColumnModified(SeriesTableMap::COL_DESCRIPTION)) {
             $criteria->add(SeriesTableMap::COL_DESCRIPTION, $this->description);
+        }
+        if ($this->isColumnModified(SeriesTableMap::COL_SYNCED)) {
+            $criteria->add(SeriesTableMap::COL_SYNCED, $this->synced);
         }
 
         return $criteria;
@@ -1232,6 +1309,7 @@ abstract class Series implements ActiveRecordInterface
         $copyObj->setChapterCount($this->getChapterCount());
         $copyObj->setPagesCount($this->getPagesCount());
         $copyObj->setDescription($this->getDescription());
+        $copyObj->setSynced($this->getSynced());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
@@ -1791,8 +1869,10 @@ abstract class Series implements ActiveRecordInterface
         $this->chapter_count = null;
         $this->pages_count = null;
         $this->description = null;
+        $this->synced = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);

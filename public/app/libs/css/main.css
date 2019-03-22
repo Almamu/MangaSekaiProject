@@ -15,6 +15,11 @@ img.series-main-image
     max-width: 250px;
 }
 
+img.edit-icon
+{
+    height: 48px;
+}
+
 .series-name-parent
 {
     overflow: hidden !important;
@@ -66,4 +71,10 @@ ul#accordionSidebar
 .item.ng-move.ng-move-active,
 .item.ng-enter.ng-enter-active {
     opacity:1;
+}
+
+.header-small
+{
+    width: 1%;
+    white-space: nowrap
 }

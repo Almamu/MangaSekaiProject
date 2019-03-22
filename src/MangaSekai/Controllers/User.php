@@ -11,14 +11,14 @@
         {
             if ($request->hasHeader ('Authorization') === false)
             {
-                throw new \Exception ('Authorization header not received');
+                throw new \Exception ('Authorization header not received', \MangaSekai\API\ErrorCodes::AUTHENTICATION);
             }
             
             $authorization = $request->getHeader ('Authorization');
             
             if (strpos ($authorization, 'Basic ') !== 0)
             {
-                throw new \Exception ('Expected basic authorization');
+                throw new \Exception ('Expected basic authorization', \MangaSekai\API\ErrorCodes::AUTHENTICATION);
             }
             
             $basic = substr ($authorization, strlen ('Basic '));
@@ -33,7 +33,7 @@
             
             if ($user === null)
             {
-                throw new \Exception ('Unknown username and/or password');
+                throw new \Exception ('Unknown username and/or password', \MangaSekai\API\ErrorCodes::AUTHENTICATION);
             }
             
             // user is correct, create new session
