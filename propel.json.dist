@@ -7,12 +7,10 @@
         "database": {
             "connections": {
                 "default": {
-                    "adapter": "mysql",
+                    "adapter": "sqlite",
                     "classname": "Propel\\Runtime\\Connection\\ConnectionWrapper",
-                    "dsn": "mysql:host=plesk.steins.glintdg.com;dbname=manga",
-                    "user": "manga",
-                    "password": "6testpwd_",
-                    "attributes": []
+                    "user": "",
+                    "password": ""
                 }
             }
         },

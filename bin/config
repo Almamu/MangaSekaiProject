@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+    /**
+     * Fast instance configuration system
+     */
+
+    $json = json_decode ('{
+    "propel": {
+        "database": {
+            "connections": {
+                "default": {
+                    "dsn": "sqlite:database.sqlite",
+                }
+            }
+        }
+    }
+}');
+    $json ['propel'] ['database'] ['connections'] ['default'] ['dsn'] = 'sqlite:' . realpath ('.') . '/database.sqlite';
+
+    file_put_contents ('propel.json', json_encode ($json));
+
+    `vendor/bin/propel config:convert`;
+
+    if (file_exists (realpath ('.') . '/database.sqlite') == true)
+    {
+        die ("Database already exists, please remove " . realpath ('.') . '/database.sqlite' . " if you want to rebuild the whole database");
+    }
+
+    // now open the sqlite database and create the tables
+    $sql = new SQLite3 (realpath ('.') . '/database.sqlite');
+    $sql->exec (file_get_contents (realpath ('.') . '/config/database.sql'));
+    $sql->close ();

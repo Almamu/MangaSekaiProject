@@ -1,5 +1,7 @@
 <div id="wrapper">
     <div ng-include="'/app/modules/dashboard/sidebar.html'"></div>
+    <div ng-include="'/app/modules/manage/editor.html'"></div>
+
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -10,6 +12,12 @@
                 </button>
 
                 <h4 class="my-2 mr-md-auto">Manage</h4>
+                <!-- Topbar Search -->
+                <form class="d-none d-sm-inline-block form-inline ml-auto mr-md-3 my-2 my-md-0 mw-100 navbar-search text-right">
+                    <button type="button" class="btn btn-primary" ng-click="newSerie ()">
+                        <i class="fa fa-plus"></i> Add serie
+                    </button>
+                </form>
             </nav>
             <div class="container-fluid">
                 <table class="table table-striped table-hover table-bordered">
