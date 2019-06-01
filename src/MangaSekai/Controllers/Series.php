@@ -46,7 +46,7 @@
             
             if ($serie == null)
             {
-                throw new \Exception ('The specified series does not exist');
+                throw new \Exception ('The specified series does not exist', \MangaSekai\API\ErrorCodes::UNKNOWN_SERIES);
             }
             
             $response

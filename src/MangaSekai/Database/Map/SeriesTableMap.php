@@ -59,7 +59,7 @@ class SeriesTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 6;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class SeriesTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 6;
 
     /**
      * the column name for the id field
@@ -97,6 +97,11 @@ class SeriesTableMap extends TableMap
     const COL_DESCRIPTION = 'series.description';
 
     /**
+     * the column name for the synced field
+     */
+    const COL_SYNCED = 'series.synced';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -108,11 +113,11 @@ class SeriesTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', 'ChapterCount', 'PagesCount', 'Description', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', 'chapterCount', 'pagesCount', 'description', ),
-        self::TYPE_COLNAME       => array(SeriesTableMap::COL_ID, SeriesTableMap::COL_NAME, SeriesTableMap::COL_CHAPTER_COUNT, SeriesTableMap::COL_PAGES_COUNT, SeriesTableMap::COL_DESCRIPTION, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', 'chapter_count', 'pages_count', 'description', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'ChapterCount', 'PagesCount', 'Description', 'Synced', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'chapterCount', 'pagesCount', 'description', 'synced', ),
+        self::TYPE_COLNAME       => array(SeriesTableMap::COL_ID, SeriesTableMap::COL_NAME, SeriesTableMap::COL_CHAPTER_COUNT, SeriesTableMap::COL_PAGES_COUNT, SeriesTableMap::COL_DESCRIPTION, SeriesTableMap::COL_SYNCED, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'chapter_count', 'pages_count', 'description', 'synced', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -122,11 +127,11 @@ class SeriesTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'ChapterCount' => 2, 'PagesCount' => 3, 'Description' => 4, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'chapterCount' => 2, 'pagesCount' => 3, 'description' => 4, ),
-        self::TYPE_COLNAME       => array(SeriesTableMap::COL_ID => 0, SeriesTableMap::COL_NAME => 1, SeriesTableMap::COL_CHAPTER_COUNT => 2, SeriesTableMap::COL_PAGES_COUNT => 3, SeriesTableMap::COL_DESCRIPTION => 4, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'chapter_count' => 2, 'pages_count' => 3, 'description' => 4, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'ChapterCount' => 2, 'PagesCount' => 3, 'Description' => 4, 'Synced' => 5, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'chapterCount' => 2, 'pagesCount' => 3, 'description' => 4, 'synced' => 5, ),
+        self::TYPE_COLNAME       => array(SeriesTableMap::COL_ID => 0, SeriesTableMap::COL_NAME => 1, SeriesTableMap::COL_CHAPTER_COUNT => 2, SeriesTableMap::COL_PAGES_COUNT => 3, SeriesTableMap::COL_DESCRIPTION => 4, SeriesTableMap::COL_SYNCED => 5, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'chapter_count' => 2, 'pages_count' => 3, 'description' => 4, 'synced' => 5, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -151,6 +156,7 @@ class SeriesTableMap extends TableMap
         $this->addColumn('chapter_count', 'ChapterCount', 'INTEGER', true, null, null);
         $this->addColumn('pages_count', 'PagesCount', 'INTEGER', true, null, null);
         $this->addColumn('description', 'Description', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('synced', 'Synced', 'INTEGER', true, 1, 0);
     } // initialize()
 
     /**
@@ -330,12 +336,14 @@ class SeriesTableMap extends TableMap
             $criteria->addSelectColumn(SeriesTableMap::COL_CHAPTER_COUNT);
             $criteria->addSelectColumn(SeriesTableMap::COL_PAGES_COUNT);
             $criteria->addSelectColumn(SeriesTableMap::COL_DESCRIPTION);
+            $criteria->addSelectColumn(SeriesTableMap::COL_SYNCED);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.chapter_count');
             $criteria->addSelectColumn($alias . '.pages_count');
             $criteria->addSelectColumn($alias . '.description');
+            $criteria->addSelectColumn($alias . '.synced');
         }
     }
 

@@ -3,7 +3,6 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
         <title>Manga Sekai Project - Your personal manga library and reader</title>
 
         <!-- Custom fonts for this template-->
@@ -13,11 +12,15 @@
         <!-- Custom styles for this template-->
         <link href="/app/libs/vendor/sb-admin/css/sb-admin-2.min.css" rel="stylesheet">
 
+        <!-- Custom styles for the modules in use -->
+        <link href="/app/modules/core/loader.css" rel="stylesheet">
+
         <link href="/app/libs/css/main.css" rel="stylesheet">
 
         <!-- Bootstrap core JavaScript-->
         <script src="/app/libs/vendor/jquery/jquery.min.js"></script>
         <script src="/app/libs/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="/app/libs/vendor/momentjs/moment.js"></script>
 
         <!-- Core plugin JavaScript-->
         <script src="/app/libs/vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -28,15 +31,20 @@
         <script type="text/javascript" src="/app/libs/vendor/angular/angular.min.js"></script>
         <script type="text/javascript" src="/app/libs/vendor/angular/angular-route.min.js"></script>
         <script type="text/javascript" src="/app/libs/vendor/angular/angular-storage.min.js"></script>
+        <script type="text/javascript" src="/app/libs/vendor/angular/angular-moment.min.js"></script>
+        <script type="text/javascript" src="/app/libs/vendor/angular/angular-animate.min.js"></script>
 
+        <script type="text/javascript" src="/app/modules/core/loader.js"></script>
         <script type="text/javascript" src="/app/modules/login/module.js"></script>
         <script type="text/javascript" src="/app/modules/dashboard/module.js"></script>
         <script type="text/javascript" src="/app/modules/viewer/module.js"></script>
+        <script type="text/javascript" src="/app/modules/manage/module.js"></script>
         <script type="text/javascript" src="/app/modules/config.js"></script>
     </head>
     <body>
         <div id="app" ng-app="mangasekai">
             <div ng-view></div>
+            <loader></loader>
         </div>
     </body>
 </html>

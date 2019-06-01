@@ -29,7 +29,7 @@
          */
         public function get (string $key)
         {
-            return $_SESSION [$key];
+            return $_SESSION [$key] ?? null;
         }
 
         public function set (string $key, $value)

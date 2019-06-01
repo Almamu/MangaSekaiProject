@@ -1,11 +1,15 @@
 'use strict';
 
 angular.module ('mangasekai', [
+    'ngAnimate',
     'ngRoute',
     'ngStorage',
+    'angularMoment',
+    'mangasekai.loader',
     'mangasekai.login',
     'mangasekai.dashboard',
-    'mangasekai.viewer'
+    'mangasekai.viewer',
+    'mangasekai.manage'
 ])
 .config (['$routeProvider', function ($routeProvider)
 {

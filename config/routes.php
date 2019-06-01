@@ -35,5 +35,9 @@
         '/track/series/:id/chapters/' => array (
             'controller' => '\\MangaSekai\\Controllers\\Track',
             'function' => 'chapters'
+        ),
+        '/match/search/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Match',
+            'function' => 'search'
         )
     );
