@@ -1,2 +1,5 @@
 /vendor/
 /public/live/
+/config/config.php
+database.sqlite
+propel.json
