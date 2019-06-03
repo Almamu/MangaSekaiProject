@@ -2,16 +2,20 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">
+        <button type="button" class="btn btn-primary" ng-click="listChapters ()" ng-show="screen == 'edit'">
+          <i class="fa fa-arrow-left"></i> Go back
+        </button>
+        <h5 class="modal-title" ng-show="screen == 'edit'">Editing chapter {{ chapterSelected.name }}</h5>
+        <h5 class="modal-title" ng-show="screen == 'list'">
           <span ng-show="mode == 'newSeries'">Create new serie</span>
           <span ng-hide="mode == 'newSeries'">Edit serie</span>
         </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-show="screen == 'list'">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form>
+        <form ng-show="screen == 'list'">
           <div class="form-row">
             <div class="col-3">
               <img src="https://images-na.ssl-images-amazon.com/images/I/91Hv6KacesL.jpg" class="series-image shadow" />
@@ -23,7 +27,7 @@
               <textarea name="description" id="description" ng-model="serie.Description" class="form-control"></textarea>
             </div>
           </div>
-          <div class="form-row mt-4">
+          <div class="form-row mt-4 mb-2">
             <div class="col-8">
               <h4>Chapter list</h4>
             </div>
@@ -33,22 +37,53 @@
               </button>
             </div>
           </div>
-          <div class="form-row" ng-repeat="chapter in serie.Chapters">
-            <div class="row">
-              <div class="col-3">
-                {{ chapter.Number }}
-              </div>
-              <div class="col-9">
-                {{ chapter.Name }}
-              </div>
+          <div class="form-row mt-2" ng-repeat="chapter in serie.Chapters">
+            <div class="col-2">
+              <input type="number" ng-model="chapter.Number" class="form-control" />
             </div>
-            <div class="row">
-              
+            <div class="col-8">
+              <input type="text" ng-model="chapter.Name" class="form-control" placeholder="Chapter name" />
+            </div>
+            <div class="col-2 text-right">
+              <button class="btn btn-primary" ng-click="editChapter ($index)"><i class="fa fa-edit"></i></button>
+              <button class="btn btn-danger" ng-click="removeChapter ($index)"><i class="fa fa-times"></i></button>
             </div>
           </div>
         </form>
+        <div ng-show="screen == 'edit'">
+          <div class="row">
+            <div class="col-6">
+              <p ng-show="chapterSelected.Pages.length == 0">There are no pages added yet</p>
+              <p ng-hide="chapterSelected.Pages.length == 0">{{ chapterSelected.Pages.length }} page(s)</p>
+            </div>
+            <div class="col-6 text-right">
+              <button type="button" class="btn btn-primary" ng-click="addPage ()">
+                <i class="fa fa-plus"></i> Add page
+              </button>
+            </div>
+          </div>
+          <div class="row mt-2" ng-repeat="page in chapterSelected.Pages | orderBy:'number'">
+            <div class="col-3">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">#</span>
+                </div>
+                <input type="number" ng-model="page.number" class="form-control" />
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-danger" ng-click="removePage ($index)">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-9">
+              <input type="file" name="file" ng-show="page.data == ''" page-upload callback="updatePageContent" index="$index" class="form-control-file" />
+              <img ng-src="{{ page.data }}" ng-hide="page.data == ''" height="128" />
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" ng-show="screen == 'list'">
         <button type="button" class="btn btn-primary">Save changes</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>

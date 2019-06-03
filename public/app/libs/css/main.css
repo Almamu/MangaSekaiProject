@@ -78,3 +78,13 @@ ul#accordionSidebar
     width: 1%;
     white-space: nowrap
 }
+
+.file-entry {
+    cursor: pointer;
+    padding: .3em;
+}
+
+.file-entry:hover {
+    background-color: #1c294e;
+    color: white;
+}

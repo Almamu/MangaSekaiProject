@@ -39,5 +39,9 @@
         '/match/search/' => array (
             'controller' => '\\MangaSekai\\Controllers\\Match',
             'function' => 'search'
+        ),
+        '/files/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Files',
+            'function' => 'search'
         )
     );

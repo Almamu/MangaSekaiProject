@@ -11,6 +11,7 @@
   box-shadow: 0 3px 15px -5px rgba(0, 0, 0, 0.35);
   border-radius: 50%;
   transition: all 500ms cubic-bezier(0.5, 1.25, 0.5, 1.25);
+  z-index: 10000000;
 }
 .ion-loader.ion-show {
   top: 50%;
