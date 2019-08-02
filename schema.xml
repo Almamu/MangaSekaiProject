@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <database name="default" defaultIdMethod="native" defaultPhpNamingMethod="underscore" namespace="MangaSekai\Database">
   <table name="chapter_tracker" idMethod="native" phpName="ChapterTracker">
-    <column name="id_chapter" phpName="IdChapter" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" required="true"/>
-    <column name="id_user" phpName="IdUser" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" required="true"/>
+    <column name="id_chapter" phpName="IdChapter" type="INTEGER" size="10" primaryKey="true" required="true"/>
+    <column name="id_user" phpName="IdUser" type="INTEGER" size="10" primaryKey="true" required="true"/>
     <foreign-key foreignTable="chapters" name="fk_chapter_tracker" onDelete="CASCADE" onUpdate="CASCADE">
       <reference local="id_chapter" foreign="id"/>
     </foreign-key>
@@ -17,8 +17,8 @@
     </vendor>
   </table>
   <table name="chapters" idMethod="native" phpName="Chapters">
-    <column name="id" phpName="Id" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" autoIncrement="true" required="true"/>
-    <column name="id_series" phpName="IdSeries" type="INTEGER" size="10" sqlType="int(10) unsigned" required="true"/>
+    <column name="id" phpName="Id" type="INTEGER" size="10" primaryKey="true" autoIncrement="true" required="true"/>
+    <column name="id_series" phpName="IdSeries" type="INTEGER" size="10" required="true"/>
     <column name="pages_count" phpName="PagesCount" type="INTEGER" required="true"/>
     <column name="number" phpName="Number" type="REAL" required="true"/>
     <foreign-key foreignTable="series" name="fk_series" onDelete="CASCADE" onUpdate="CASCADE">
@@ -33,20 +33,20 @@
     </vendor>
   </table>
   <table name="series" idMethod="native" phpName="Series">
-    <column name="id" phpName="Id" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" autoIncrement="true" required="true"/>
+    <column name="id" phpName="Id" type="INTEGER" size="10" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="name" phpName="Name" type="VARCHAR" size="255" required="true"/>
     <column name="chapter_count" phpName="ChapterCount" type="INTEGER" required="true"/>
     <column name="pages_count" phpName="PagesCount" type="INTEGER" required="true"/>
     <column name="description" phpName="Description" type="LONGVARCHAR" required="true"/>
-    <column name="synced" phpName="Synced" type="INTEGER" size="1" sqlType="BOOLEAN" required="true" default="0"/>
+    <column name="synced" phpName="Synced" type="INTEGER" size="1" required="true" default="0"/>
     <column name="image" phpName="Image" type="LONGVARCHAR"/>
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
     </vendor>
   </table>
   <table name="series_tracker" idMethod="native" phpName="SeriesTracker">
-    <column name="id_user" phpName="IdUser" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" required="true"/>
-    <column name="id_series" phpName="IdSeries" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" required="true"/>
+    <column name="id_user" phpName="IdUser" type="INTEGER" size="10" primaryKey="true" required="true"/>
+    <column name="id_series" phpName="IdSeries" type="INTEGER" size="10" primaryKey="true" required="true"/>
     <foreign-key foreignTable="series" name="fk_series_tracker" onDelete="CASCADE" onUpdate="CASCADE">
       <reference local="id_series" foreign="id"/>
     </foreign-key>
@@ -61,7 +61,7 @@
     </vendor>
   </table>
   <table name="users" idMethod="native" phpName="Users">
-    <column name="id" phpName="Id" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" autoIncrement="true" required="true"/>
+    <column name="id" phpName="Id" type="INTEGER" size="10" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="username" phpName="Username" type="LONGVARCHAR" required="true"/>
     <column name="password" phpName="Password" type="CHAR" size="64" required="true"/>
     <vendor type="mysql">

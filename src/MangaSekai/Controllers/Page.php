@@ -26,7 +26,7 @@
             
             // find page first
             $imageType = exif_imagetype ($page->getPath ());
-    
+
             switch ($imageType)
             {
                 case IMAGETYPE_JPEG:
@@ -46,7 +46,7 @@
                     break;
         
                 default:
-                    throw new \Exception ('Unrecognized image format (' . $imageType . '). Cannot perform chapter upload', \MangaSekai\API\ErrorCodes::UNKNOWN_IMAGE_FORMAT);
+                    throw new \Exception ('Unrecognized image format (' . $imageType . '). Cannot display image', \MangaSekai\API\ErrorCodes::UNKNOWN_IMAGE_FORMAT);
             }
             
             $response

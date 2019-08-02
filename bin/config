@@ -20,6 +20,7 @@
     file_put_contents ('propel.json', json_encode ($json));
 
     `vendor/bin/propel config:convert`;
+    `vendor/bin/propel sql:build`;
 
     if (file_exists (realpath ('.') . '/database.sqlite') == true)
     {
@@ -28,5 +29,16 @@
 
     // now open the sqlite database and create the tables
     $sql = new SQLite3 (realpath ('.') . '/database.sqlite');
-    $sql->exec (file_get_contents (realpath ('.') . '/config/database.sql'));
+    $sql->exec (file_get_contents (realpath ('.') . '/generated-sql/default.sql'));
     $sql->close ();
+
+    // finally create a new user
+    include "vendor/autoload.php";
+    include "config/config.php";
+
+    $user = new \MangaSekai\Database\Users ();
+
+    $user
+        ->setUsername ('admin')
+        ->setPassword (hash('sha256', 'admin'))
+        ->save ();

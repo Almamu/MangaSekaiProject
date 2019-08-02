@@ -201,12 +201,12 @@
                 if ($entry == '.' || $entry == '..')
                     continue;
                 
-                preg_match ('/[0-9]+/', $entry, $matches);
+                preg_match_all ('/[0-9]+/', $entry, $matches);
                 
-                if (count ($matches) == 0)
+                if (count ($matches [0]) == 0)
                     continue;
                 
-                $pages [(int) reset ($matches)] = realpath ($folder) . '/' . $entry;
+                $pages [(int) end ($matches [0])] = realpath ($folder) . '/' . $entry;
             }
             
             closedir ($dir);
