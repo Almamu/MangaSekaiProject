@@ -26,7 +26,9 @@
                     </div>
 
                     <div ng-repeat="page in pages" class="page-container mb-2">
-                        <img lazy-img="{{ page }}?token={{ token }}" />
+                        <img ng-image-appear
+                             responsive
+                             transition-duration="1s" lazy-img="{{ page }}?token={{ token }}" />
                     </div>
 
                     <div class="row my-5">

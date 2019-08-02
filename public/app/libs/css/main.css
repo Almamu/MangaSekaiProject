@@ -34,9 +34,10 @@ img.edit-icon
     overflow: hidden;
 }
 
-.page-container img
+.page-container img:not(.ngImageAppearLoader)
 {
     max-width: 900px;
+    min-height: 320px;
     width: 100%;
 }
 
