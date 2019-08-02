@@ -10,6 +10,11 @@ angular.module ('mangasekai.login', [
             controller: 'LoginController',
             templateUrl: '/app/modules/login/login.html'
         }
+    ).when (
+        '/logout', {
+            controller: 'LogoutController',
+            template: '<div></div>'
+        }
     );
 
     $httpProvider.interceptors.push ('authenticationCheck');
@@ -22,14 +27,14 @@ function ($q, $location)
         response: function (config)
         {
             if (config.headers ('Content-Type') == 'application/json' && 'data' in config && 'code' in config.data && config.data.code == 100)
-                $location.path ('/login/');
+                $location.path ('/logout/');
 
             return config || $q.when (config);
         },
         responseError: function (rejection)
         {
             if (rejection.headers ('Content-Type') == 'application/json' && 'data' in rejection && 'code' in rejection.data && rejection.data.code == 100)
-                $location.path ('/login/');
+                $location.path ('/logout/');
 
             return $q.reject (rejection);
         }
@@ -98,6 +103,13 @@ function ($q, $location)
             }
 
             return '';
+        },
+        clearSession: function ()
+        {
+            if (this.hasSession () == true)
+            {
+                $localStorage.session = {};
+            }
         }
     }
 }])
@@ -126,4 +138,9 @@ function ($q, $location)
             }
         )
     };
+}])
+.controller ('LogoutController', ['$location', 'AuthenticationService', function ($location, AuthenticationService)
+{
+    AuthenticationService.clearSession ();
+    $location.path ('/login/');
 }]);
