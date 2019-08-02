@@ -41,12 +41,12 @@
             {
                 $search = SettingsQuery::create ();
                 
-                if (array_key_exists ('name', $bodyData) === true)
+                if ($request->hasQueryStringParameter ('name') === true)
                 {
-                    $search->filterByName ($bodyData ['name']);
+                    $search->filterByName ($request->getQueryStringParameter ('name'));
                 }
                 
-                $result = $search->find ();
+                $result = $search->findOne ();
                 $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput ($result->toArray ())

@@ -6,8 +6,8 @@ angular.module ('mangasekai.manage', [])
 {
     $routeProvider
         .when ('/manage/', {
-            controller: 'SeriesController',
-            templateUrl : '/app/modules/manage/series.html'
+            controller: 'SettingsController',
+            templateUrl : '/app/modules/manage/settings.html'
         });
 }])
 .directive ('pageUpload', [function ()
@@ -30,6 +30,46 @@ angular.module ('mangasekai.manage', [])
             });
         }
     }
+}])
+.controller ('SettingsController', ['$http', '$scope', 'API', function ($http, $scope, API)
+{
+    $scope.folders = [];
+    $scope.saveFolders = function ()
+    {
+        $http.post (API ('settings'), {name: 'scanner_dirs', value: $scope.folders});
+    };
+
+    $scope.removeFolder = function (index)
+    {
+        $scope.folders.splice (index, 1);
+
+        // save change
+        $scope.saveFolders ();
+    };
+
+    $scope.showFolderDialog = function ()
+    {
+        $scope.$broadcast ('DisplayDiscovery', 'Please select the folder where your mangas are');
+    };
+
+    $http.get (API ('settings') + '?name=' + encodeURIComponent ('scanner_dirs')).then (
+        function (result)
+        {
+            $scope.folders = result.data.Value;
+        }
+    );
+
+    let folderSelectedEvent = $scope.$on ('FolderSelected', function (ev, folder)
+    {
+        // add the folder the list
+        $scope.folders.push (folder);
+        $scope.saveFolders ();
+    });
+
+    $scope.$on ('$destroy', function ()
+    {
+        folderSelectedEvent ();
+    });
 }])
 .controller ('SeriesController', ['$http', '$scope', 'API', function ($http, $scope, API)
 {
@@ -81,9 +121,11 @@ angular.module ('mangasekai.manage', [])
 {
     $scope.files = [];
     $scope.directory = '';
+    $scope.title = '';
 
-    $scope.$on ('DisplayDiscovery', function ()
+    $scope.$on ('DisplayDiscovery', function (ev, title)
     {
+        $scope.title = title;
         $scope.showModal ();
     });
     $scope.showModal = function ()
@@ -103,6 +145,11 @@ angular.module ('mangasekai.manage', [])
             $scope.directory += '/' + file.name;
 
         requestFolders ();
+    };
+
+    $scope.selectCurrentFolder = function ()
+    {
+        $scope.$emit ('FolderSelected', $scope.directory);
     };
 
     function requestFolders ()
