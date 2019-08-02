@@ -11,4 +11,5 @@
         const UNKNOWN_CHAPTER = 300;
         const CANNOT_FIND_MATCH = 600;
         const UNKNOWN_IMAGE_FORMAT = 800;
+        const UNKNOWN_PAGE = 400;
     };

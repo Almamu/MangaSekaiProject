@@ -4,6 +4,7 @@ angular.module ('mangasekai', [
     'ngAnimate',
     'ngRoute',
     'ngStorage',
+    'angularLazyImg',
     'angularMoment',
     'mangasekai.loader',
     'mangasekai.login',

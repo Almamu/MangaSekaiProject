@@ -26,6 +26,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeriesQuery orderByPagesCount($order = Criteria::ASC) Order by the pages_count column
  * @method     ChildSeriesQuery orderByDescription($order = Criteria::ASC) Order by the description column
  * @method     ChildSeriesQuery orderBySynced($order = Criteria::ASC) Order by the synced column
+ * @method     ChildSeriesQuery orderByImage($order = Criteria::ASC) Order by the image column
  *
  * @method     ChildSeriesQuery groupById() Group by the id column
  * @method     ChildSeriesQuery groupByName() Group by the name column
@@ -33,6 +34,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeriesQuery groupByPagesCount() Group by the pages_count column
  * @method     ChildSeriesQuery groupByDescription() Group by the description column
  * @method     ChildSeriesQuery groupBySynced() Group by the synced column
+ * @method     ChildSeriesQuery groupByImage() Group by the image column
  *
  * @method     ChildSeriesQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildSeriesQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -72,7 +74,8 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeries findOneByChapterCount(int $chapter_count) Return the first ChildSeries filtered by the chapter_count column
  * @method     ChildSeries findOneByPagesCount(int $pages_count) Return the first ChildSeries filtered by the pages_count column
  * @method     ChildSeries findOneByDescription(string $description) Return the first ChildSeries filtered by the description column
- * @method     ChildSeries findOneBySynced(int $synced) Return the first ChildSeries filtered by the synced column *
+ * @method     ChildSeries findOneBySynced(int $synced) Return the first ChildSeries filtered by the synced column
+ * @method     ChildSeries findOneByImage(string $image) Return the first ChildSeries filtered by the image column *
 
  * @method     ChildSeries requirePk($key, ConnectionInterface $con = null) Return the ChildSeries by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSeries requireOne(ConnectionInterface $con = null) Return the first ChildSeries matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -83,6 +86,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeries requireOneByPagesCount(int $pages_count) Return the first ChildSeries filtered by the pages_count column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSeries requireOneByDescription(string $description) Return the first ChildSeries filtered by the description column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSeries requireOneBySynced(int $synced) Return the first ChildSeries filtered by the synced column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildSeries requireOneByImage(string $image) Return the first ChildSeries filtered by the image column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildSeries[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildSeries objects based on current ModelCriteria
  * @method     ChildSeries[]|ObjectCollection findById(int $id) Return ChildSeries objects filtered by the id column
@@ -91,6 +95,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeries[]|ObjectCollection findByPagesCount(int $pages_count) Return ChildSeries objects filtered by the pages_count column
  * @method     ChildSeries[]|ObjectCollection findByDescription(string $description) Return ChildSeries objects filtered by the description column
  * @method     ChildSeries[]|ObjectCollection findBySynced(int $synced) Return ChildSeries objects filtered by the synced column
+ * @method     ChildSeries[]|ObjectCollection findByImage(string $image) Return ChildSeries objects filtered by the image column
  * @method     ChildSeries[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -189,7 +194,7 @@ abstract class SeriesQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, chapter_count, pages_count, description, synced FROM series WHERE id = :p0';
+        $sql = 'SELECT id, name, chapter_count, pages_count, description, synced, image FROM series WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -491,6 +496,31 @@ abstract class SeriesQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(SeriesTableMap::COL_SYNCED, $synced, $comparison);
+    }
+
+    /**
+     * Filter the query on the image column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByImage('fooValue');   // WHERE image = 'fooValue'
+     * $query->filterByImage('%fooValue%', Criteria::LIKE); // WHERE image LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $image The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildSeriesQuery The current query, for fluid interface
+     */
+    public function filterByImage($image = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($image)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(SeriesTableMap::COL_IMAGE, $image, $comparison);
     }
 
     /**

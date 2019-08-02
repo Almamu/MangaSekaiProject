@@ -90,7 +90,7 @@ abstract class Chapters implements ActiveRecordInterface
     /**
      * The value for the number field.
      *
-     * @var        int
+     * @var        double
      */
     protected $number;
 
@@ -377,7 +377,7 @@ abstract class Chapters implements ActiveRecordInterface
     /**
      * Get the [number] column value.
      *
-     * @return int
+     * @return double
      */
     public function getNumber()
     {
@@ -451,13 +451,13 @@ abstract class Chapters implements ActiveRecordInterface
     /**
      * Set the value of [number] column.
      *
-     * @param int $v new value
+     * @param double $v new value
      * @return $this|\MangaSekai\Database\Chapters The current object (for fluent API support)
      */
     public function setNumber($v)
     {
         if ($v !== null) {
-            $v = (int) $v;
+            $v = (double) $v;
         }
 
         if ($this->number !== $v) {
@@ -514,7 +514,7 @@ abstract class Chapters implements ActiveRecordInterface
             $this->pages_count = (null !== $col) ? (int) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ChaptersTableMap::translateFieldName('Number', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->number = (null !== $col) ? (int) $col : null;
+            $this->number = (null !== $col) ? (double) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -792,7 +792,7 @@ abstract class Chapters implements ActiveRecordInterface
                         $stmt->bindValue($identifier, $this->pages_count, PDO::PARAM_INT);
                         break;
                     case 'number':
-                        $stmt->bindValue($identifier, $this->number, PDO::PARAM_INT);
+                        $stmt->bindValue($identifier, $this->number, PDO::PARAM_STR);
                         break;
                 }
             }

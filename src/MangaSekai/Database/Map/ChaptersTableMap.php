@@ -144,7 +144,7 @@ class ChaptersTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 10, null);
         $this->addForeignKey('id_series', 'IdSeries', 'INTEGER', 'series', 'id', true, 10, null);
         $this->addColumn('pages_count', 'PagesCount', 'INTEGER', true, null, null);
-        $this->addColumn('number', 'Number', 'INTEGER', true, 10, null);
+        $this->addColumn('number', 'Number', 'REAL', true, null, null);
     } // initialize()
 
     /**

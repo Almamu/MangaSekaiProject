@@ -2,6 +2,7 @@
     namespace MangaSekai\Controllers;
     
     use \MangaSekai\Database\ChaptersQuery;
+    use \MangaSekai\Database\PagesQuery;
     
     class Chapters
     {
@@ -24,11 +25,11 @@
             $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput (
-                    $this->paginatedResponse (
-                        ChaptersQuery::create ()
-                                     ->filterByIdSeries ($request->getParameter ('id'))
-                                     ->paginate ($page, self::RECORDS_PER_PAGE)
-                    )
+                    ChaptersQuery::create ()
+                                 ->filterByIdSeries ($request->getParameter ('id'))
+                                 ->orderByNumber ()
+                                 ->find ()
+                                 ->toArray ()
                 )
                 ->printOutput ();
         }
@@ -71,11 +72,14 @@
                 $previous = $previous->toArray ();
 
             $links = array ();
+            $pages = PagesQuery::create ()
+                                ->orderByPage ()
+                                ->findByIdChapter ($chapter->getId ());
             
             // now generate the pages information
-            for ($i = 1; $i <= $chapter->getPagesCount (); $i ++)
+            foreach ($pages as $page)
             {
-                $links [] = '/live/' . $serieid . '/chapter/' . $chapterid . '/page/' . $i . '.jpg';
+                $links [] = '/api/index.php/chapter/' . $chapterid . '/page/' . $page->getPage () . '/';
             }
 
             $response

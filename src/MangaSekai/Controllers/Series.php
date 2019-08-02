@@ -31,9 +31,7 @@
                 $response
                     ->setContentType (\MangaSekai\HTTP\Response::JSON)
                     ->setOutput (
-                        $this->paginatedResponse (
-                            SeriesQuery::create ()->paginate ($page, self::RECORDS_PER_PAGE)
-                        )
+                        SeriesQuery::create ()->find ()->toArray ()
                     )
                     ->printOutput ();
             }
@@ -50,7 +48,7 @@
             }
             
             $response
-                ->setcontentType (\MangaSekai\HTTP\Response::JSON)
+                ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput ($serie->toArray ())
                 ->printOutput ();
         }

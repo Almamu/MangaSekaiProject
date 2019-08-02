@@ -3,7 +3,7 @@
     
     class Matcher implements \MangaSekai\Media\Matcher
     {
-        const ANILIST_URL = 'https://anilist.co/graphql';
+        const ANILIST_URL = 'https://graphql.anilist.co';
         
         private function buildGraphQLmatch (): string
         {
@@ -109,7 +109,7 @@ query (
         /**
          * @param string $search The serie's name to search
          *
-         * @return array List of results sorted by match
+         * @return \MangaSekai\Media\Match[] List of results sorted by match
          * @throws \Exception
          */
         function match (string $search): array
@@ -147,6 +147,8 @@ query (
             
             $resultList = array ();
             
+            $result = json_decode ($result, true);
+            
             foreach ($result ['data'] ['Page'] ['ANIME'] as $series)
             {
                 $startDate = $series ['startDate'] ['year'] . '/' . $series ['startDate'] ['month'] . '/' . $series ['startDate'] ['day'];
@@ -157,15 +159,14 @@ query (
                     $endDate = $series ['endDate'] ['year'] . '/' . $series ['endDate'] ['month'] . '/' . $series ['endDate'] ['day'];
                 }
                 
-                $resultList [] = array (
-                    'id'            => $series ['id'],
-                    'name'          => $series ['title'] ['userPreferred'],
-                    'cover'         => $series ['cover'] ['large'],
-                    'description'   => $series ['description'],
-                    'genres'        => $series ['genres'],
-                    'score'         => $series ['averageScore'],
-                    'start'         => $startDate,
-                    'end'           => $endDate
+                $resultList [] = new \MangaSekai\Media\Match (
+                    $series ['title'] ['userPreferred'],
+                    $series ['coverImage'] ['large'] ?? '',
+                    $series ['description'] ?? '',
+                    $series ['genres'] ?? '',
+                    $series ['averageScore'] ?? 0,
+                    $startDate,
+                    $endDate
                 );
             }
             

@@ -11,8 +11,8 @@ angular.module ('mangasekai.viewer', [])
     );
 }])
 .controller ('ViewerController', [
-'$http', '$location', '$routeParams', '$scope', 'API',
-function ($http, $location, $routeParams, $scope, API)
+'$http', '$location', '$routeParams', '$scope', 'API', 'AuthenticationService',
+function ($http, $location, $routeParams, $scope, API, AuthenticationService)
 {
     $scope.loaded = 'loading';
     $scope.pages = [];
@@ -20,6 +20,7 @@ function ($http, $location, $routeParams, $scope, API)
     $scope.chapter = {};
     $scope.next = null;
     $scope.previous = null;
+    $scope.token = encodeURIComponent (AuthenticationService.getToken ());
 
     $scope.goBack = function ()
     {

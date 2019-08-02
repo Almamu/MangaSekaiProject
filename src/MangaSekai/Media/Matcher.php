@@ -12,7 +12,7 @@
         /**
          * @param string $search The serie's name to search
          *
-         * @return array
+         * @return Match[]
          */
         function match (string $search): array;
     };

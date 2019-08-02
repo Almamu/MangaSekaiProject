@@ -12,17 +12,17 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-4 col-lg-3 text-center">
-                        <img src="https://images-na.ssl-images-amazon.com/images/I/91Hv6KacesL.jpg" class="series-main-image" />
+                        <img ng-src="{{ list.info.Image }}" class="series-main-image" />
                     </div>
                     <div class="col-md-8 col-lg-9">
                         <h2>{{ list.info.Name }}</h2>
-                        <p>{{ list.info.Description }}</p>
+                        <p ng-bind-html="list.info.Description"></p>
                     </div>
                 </div>
                 <hr />
                 <h4>Available chapters</h4>
-                <span ng-repeat="chapter in list.pagination.content" class="item">
-                    <chapter-entry entry="chapter"></chapter-entry>
+                <span ng-repeat="chapter in list.chapters" class="item">
+                    <chapter-entry entry="chapter" serie="list.info"></chapter-entry>
                 </span>
             </div>
         </div>

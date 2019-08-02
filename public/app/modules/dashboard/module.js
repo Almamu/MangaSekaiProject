@@ -32,7 +32,8 @@ angular.module ('mangasekai.dashboard', [])
         restrict: 'E',
         replace: true,
         scope: {
-            entry: '='
+            entry: '=',
+            serie: '='
         },
         templateUrl: '/app/modules/dashboard/chapter-entry.html'
     }
@@ -44,14 +45,21 @@ angular.module ('mangasekai.dashboard', [])
     $http.get (API ('series')).then (
         function (result)
         {
-            if (result.data.count > 0)
-            {
-                $scope.list.pagination = result.data;
-            }
+            $scope.list = result.data;
         }
     );
+
+    $scope.performScan = function ()
+    {
+        $http.get (API ('scan')).then (
+            function (result)
+            {
+
+            }
+        )
+    };
 }])
-.controller ('SerieController', ['$http', '$routeParams', '$scope', 'API', function ($http, $routeParams, $scope, API)
+.controller ('SerieController', ['$http', '$routeParams', '$sce', '$scope', 'API', function ($http, $routeParams, $sce, $scope, API)
 {
     $scope.list = {pagination: {}, info: {}};
 
@@ -59,16 +67,14 @@ angular.module ('mangasekai.dashboard', [])
         function (result)
         {
             $scope.list.info = result.data;
+            $scope.list.info.Description = $sce.trustAsHtml ($scope.list.info.Description);
         }
     );
 
     $http.get (API ('series/' + $routeParams.id + '/chapters')).then (
         function (result)
         {
-            if (result.data.count > 0)
-            {
-                $scope.list.pagination = result.data;
-            }
+            $scope.list.chapters = result.data;
         }
     );
 }]);

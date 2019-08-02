@@ -68,4 +68,31 @@ CREATE TABLE `users`
     `password` CHAR(64) NOT NULL
 );
 
+-- ---------------------------------------------------------------------
+-- settings
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `settings`;
+
+CREATE TABLE `settings`
+(
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`name`	TEXT NOT NULL UNIQUE,
+	`value`	TEXT
+);
+
+-- ---------------------------------------------------------------------
+-- pages
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pages`;
+
+CREATE TABLE `pages`
+(
+	`id_chapter`	INTEGER NOT NULL,
+	`page`	INTEGER NOT NULL,
+	`path`	TEXT,
+	PRIMARY KEY(`page`,`id_chapter`)
+);
+
 INSERT INTO "main"."users"("id","username","password") VALUES (1,'admin','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918');

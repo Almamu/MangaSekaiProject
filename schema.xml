@@ -20,7 +20,7 @@
     <column name="id" phpName="Id" type="INTEGER" size="10" sqlType="int(10) unsigned" primaryKey="true" autoIncrement="true" required="true"/>
     <column name="id_series" phpName="IdSeries" type="INTEGER" size="10" sqlType="int(10) unsigned" required="true"/>
     <column name="pages_count" phpName="PagesCount" type="INTEGER" required="true"/>
-    <column name="number" phpName="Number" type="INTEGER" size="10" sqlType="int(10) unsigned" required="true"/>
+    <column name="number" phpName="Number" type="REAL" required="true"/>
     <foreign-key foreignTable="series" name="fk_series" onDelete="CASCADE" onUpdate="CASCADE">
       <reference local="id_series" foreign="id"/>
     </foreign-key>
@@ -39,6 +39,7 @@
     <column name="pages_count" phpName="PagesCount" type="INTEGER" required="true"/>
     <column name="description" phpName="Description" type="LONGVARCHAR" required="true"/>
     <column name="synced" phpName="Synced" type="INTEGER" size="1" sqlType="BOOLEAN" required="true" default="0"/>
+    <column name="image" phpName="Image" type="LONGVARCHAR"/>
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
     </vendor>
@@ -66,5 +67,22 @@
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
     </vendor>
+  </table>
+  <table name="settings" idMethod="native" phpName="Settings">
+    <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+    <column name="name" phpName="Name" type="LONGVARCHAR" required="true"/>
+    <column name="value" phpName="Value" type="LONGVARCHAR"/>
+    <unique name="settings_u_d94269">
+      <unique-column name="name"/>
+    </unique>
+  </table>
+  <table name="pages" idMethod="native" phpName="Pages">
+    <column name="id_chapter" phpName="IdChapter" type="INTEGER" primaryKey="true" required="true"/>
+    <column name="page" phpName="Page" type="INTEGER" primaryKey="true" required="true"/>
+    <column name="path" phpName="Path" type="LONGVARCHAR"/>
+    <unique name="pages_u_ddcfb5">
+      <unique-column name="page"/>
+      <unique-column name="id_chapter"/>
+    </unique>
   </table>
 </database>

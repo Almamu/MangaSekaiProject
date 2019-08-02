@@ -89,6 +89,15 @@ function ($q, $location)
                 return false;
 
             return moment.utc ().isBefore (moment.unix ($localStorage.session.expire_time));
+        },
+        getToken: function ()
+        {
+            if (this.hasSession () == true)
+            {
+                return $localStorage.session.token;
+            }
+
+            return '';
         }
     }
 }])

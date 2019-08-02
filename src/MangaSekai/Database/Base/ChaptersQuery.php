@@ -66,7 +66,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildChapters findOneById(int $id) Return the first ChildChapters filtered by the id column
  * @method     ChildChapters findOneByIdSeries(int $id_series) Return the first ChildChapters filtered by the id_series column
  * @method     ChildChapters findOneByPagesCount(int $pages_count) Return the first ChildChapters filtered by the pages_count column
- * @method     ChildChapters findOneByNumber(int $number) Return the first ChildChapters filtered by the number column *
+ * @method     ChildChapters findOneByNumber(double $number) Return the first ChildChapters filtered by the number column *
 
  * @method     ChildChapters requirePk($key, ConnectionInterface $con = null) Return the ChildChapters by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildChapters requireOne(ConnectionInterface $con = null) Return the first ChildChapters matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -74,13 +74,13 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildChapters requireOneById(int $id) Return the first ChildChapters filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildChapters requireOneByIdSeries(int $id_series) Return the first ChildChapters filtered by the id_series column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildChapters requireOneByPagesCount(int $pages_count) Return the first ChildChapters filtered by the pages_count column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildChapters requireOneByNumber(int $number) Return the first ChildChapters filtered by the number column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildChapters requireOneByNumber(double $number) Return the first ChildChapters filtered by the number column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildChapters[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildChapters objects based on current ModelCriteria
  * @method     ChildChapters[]|ObjectCollection findById(int $id) Return ChildChapters objects filtered by the id column
  * @method     ChildChapters[]|ObjectCollection findByIdSeries(int $id_series) Return ChildChapters objects filtered by the id_series column
  * @method     ChildChapters[]|ObjectCollection findByPagesCount(int $pages_count) Return ChildChapters objects filtered by the pages_count column
- * @method     ChildChapters[]|ObjectCollection findByNumber(int $number) Return ChildChapters objects filtered by the number column
+ * @method     ChildChapters[]|ObjectCollection findByNumber(double $number) Return ChildChapters objects filtered by the number column
  * @method     ChildChapters[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */

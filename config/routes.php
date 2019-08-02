@@ -4,6 +4,18 @@
             'controller' => '\\MangaSekai\\Controllers\\Installer',
             'function' => 'upload'
         ),
+        '/scan/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Scanner',
+            'function' => 'scan'
+        ),
+        '/chapter/:id/page/:number/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Page',
+            'function' => 'get'
+        ),
+        '/settings/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Settings',
+            'function' => 'list'
+        ),
         '/series/' => array (
             'controller' => '\\MangaSekai\\Controllers\\Series',
             'function' => 'list'

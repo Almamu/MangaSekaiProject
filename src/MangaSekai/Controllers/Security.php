@@ -5,19 +5,28 @@
     {
         protected function validateUser (\MangaSekai\HTTP\Request $request): \MangaSekai\Storage\SessionStorage
         {
-            if ($request->hasHeader ('Authorization') === false)
+            $token = '';
+            
+            if ($request->hasHeader ('Authorization') == true)
             {
-                throw new \Exception ('Authorization header not specified', \MangaSekai\API\ErrorCodes::AUTHENTICATION_REQUIRED);
+                $authorization = $request->getHeader ('Authorization');
+    
+                if (strpos ($authorization, 'Bearer ') !== 0)
+                {
+                    throw new \Exception ('Expected bearer authorization', \MangaSekai\API\ErrorCodes::AUTHENTICATION_REQUIRED);
+                }
+    
+                $token = substr ($authorization, strlen ('Bearer '));
+            }
+            elseif ($request->hasQueryStringParameter ('token') == true)
+            {
+                $token = $request->getQueryStringParameter ('token');
+            }
+            else
+            {
+                throw new \Exception ('Authorization data not specified', \MangaSekai\API\ErrorCodes::AUTHENTICATION_REQUIRED);
             }
             
-            $authorization = $request->getHeader ('Authorization');
-            
-            if (strpos ($authorization, 'Bearer ') !== 0)
-            {
-                throw new \Exception ('Expected bearer authorization', \MangaSekai\API\ErrorCodes::AUTHENTICATION_REQUIRED);
-            }
-            
-            $token = substr ($authorization, strlen ('Bearer '));
             $storage = new \MangaSekai\Storage\SessionStorage ($token);
             
             if ($storage->get ('expire_time') < time ())

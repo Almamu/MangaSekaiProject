@@ -111,6 +111,13 @@ abstract class Series implements ActiveRecordInterface
     protected $synced;
 
     /**
+     * The value for the image field.
+     *
+     * @var        string
+     */
+    protected $image;
+
+    /**
      * @var        ObjectCollection|ChildChapters[] Collection to store aggregation of ChildChapters objects.
      */
     protected $collChapterss;
@@ -441,6 +448,16 @@ abstract class Series implements ActiveRecordInterface
     }
 
     /**
+     * Get the [image] column value.
+     *
+     * @return string
+     */
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -561,6 +578,26 @@ abstract class Series implements ActiveRecordInterface
     } // setSynced()
 
     /**
+     * Set the value of [image] column.
+     *
+     * @param string $v new value
+     * @return $this|\MangaSekai\Database\Series The current object (for fluent API support)
+     */
+    public function setImage($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->image !== $v) {
+            $this->image = $v;
+            $this->modifiedColumns[SeriesTableMap::COL_IMAGE] = true;
+        }
+
+        return $this;
+    } // setImage()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -617,6 +654,9 @@ abstract class Series implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SeriesTableMap::translateFieldName('Synced', TableMap::TYPE_PHPNAME, $indexType)];
             $this->synced = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : SeriesTableMap::translateFieldName('Image', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->image = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -625,7 +665,7 @@ abstract class Series implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = SeriesTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = SeriesTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\Series'), 0, $e);
@@ -882,6 +922,9 @@ abstract class Series implements ActiveRecordInterface
         if ($this->isColumnModified(SeriesTableMap::COL_SYNCED)) {
             $modifiedColumns[':p' . $index++]  = 'synced';
         }
+        if ($this->isColumnModified(SeriesTableMap::COL_IMAGE)) {
+            $modifiedColumns[':p' . $index++]  = 'image';
+        }
 
         $sql = sprintf(
             'INSERT INTO series (%s) VALUES (%s)',
@@ -910,6 +953,9 @@ abstract class Series implements ActiveRecordInterface
                         break;
                     case 'synced':
                         $stmt->bindValue($identifier, $this->synced, PDO::PARAM_INT);
+                        break;
+                    case 'image':
+                        $stmt->bindValue($identifier, $this->image, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -991,6 +1037,9 @@ abstract class Series implements ActiveRecordInterface
             case 5:
                 return $this->getSynced();
                 break;
+            case 6:
+                return $this->getImage();
+                break;
             default:
                 return null;
                 break;
@@ -1027,6 +1076,7 @@ abstract class Series implements ActiveRecordInterface
             $keys[3] => $this->getPagesCount(),
             $keys[4] => $this->getDescription(),
             $keys[5] => $this->getSynced(),
+            $keys[6] => $this->getImage(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1116,6 +1166,9 @@ abstract class Series implements ActiveRecordInterface
             case 5:
                 $this->setSynced($value);
                 break;
+            case 6:
+                $this->setImage($value);
+                break;
         } // switch()
 
         return $this;
@@ -1159,6 +1212,9 @@ abstract class Series implements ActiveRecordInterface
         }
         if (array_key_exists($keys[5], $arr)) {
             $this->setSynced($arr[$keys[5]]);
+        }
+        if (array_key_exists($keys[6], $arr)) {
+            $this->setImage($arr[$keys[6]]);
         }
     }
 
@@ -1218,6 +1274,9 @@ abstract class Series implements ActiveRecordInterface
         }
         if ($this->isColumnModified(SeriesTableMap::COL_SYNCED)) {
             $criteria->add(SeriesTableMap::COL_SYNCED, $this->synced);
+        }
+        if ($this->isColumnModified(SeriesTableMap::COL_IMAGE)) {
+            $criteria->add(SeriesTableMap::COL_IMAGE, $this->image);
         }
 
         return $criteria;
@@ -1310,6 +1369,7 @@ abstract class Series implements ActiveRecordInterface
         $copyObj->setPagesCount($this->getPagesCount());
         $copyObj->setDescription($this->getDescription());
         $copyObj->setSynced($this->getSynced());
+        $copyObj->setImage($this->getImage());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
@@ -1870,6 +1930,7 @@ abstract class Series implements ActiveRecordInterface
         $this->pages_count = null;
         $this->description = null;
         $this->synced = null;
+        $this->image = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->applyDefaultValues();
