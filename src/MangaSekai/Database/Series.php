@@ -16,5 +16,34 @@ use MangaSekai\Database\Base\Series as BaseSeries;
  */
 class Series extends BaseSeries
 {
+    const DEFAULT_IMAGE = '/app/img/logo_no_image.png';
 
+    function getImage()
+    {
+        $image = parent::getImage ();
+
+        if ($image == null || empty ($image))
+        {
+            return self::DEFAULT_IMAGE;
+        }
+
+        return $image;
+    }
+
+    function toArrayWithAuthors ()
+    {
+        $ourdata = $this->toArray ();
+        $ourdata ['Authors'] = array ();
+
+        $authors = SeriesStaffQuery::create ()
+            ->filterByIdSerie ($this->getId ())
+            ->addJoin (Map\SeriesStaffTableMap::COL_ID_STAFF, Map\StaffTableMap::COL_ID)
+            ->withColumn (Map\StaffTableMap::COL_NAME, "Name")
+            ->withColumn (Map\StaffTableMap::COL_IMAGE, "Image")
+            ->find ();
+
+        $ourdata ['Authors'] = $authors->toArray ();
+
+        return $ourdata;
+    }
 }

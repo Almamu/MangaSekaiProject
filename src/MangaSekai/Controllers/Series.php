@@ -49,7 +49,7 @@
             
             $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
-                ->setOutput ($serie->toArray ())
+                ->setOutput ($serie->toArrayWithAuthors ())
                 ->printOutput ();
         }
     };

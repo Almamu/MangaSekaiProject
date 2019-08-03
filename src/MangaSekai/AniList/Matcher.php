@@ -101,6 +101,21 @@ query (
                     }
                 }
             }
+            staff (perPage: 8) {
+                edges {
+                    id
+                    role
+                    node {
+                        id
+                        name {
+                            full
+                        }
+                        image {
+                            large
+                        }
+                    }
+                }
+            }
         }
     }
 }';
@@ -151,6 +166,26 @@ query (
             
             foreach ($result ['data'] ['Page'] ['ANIME'] as $series)
             {
+                $authors = array ();
+
+                foreach ($series ['staff'] ['edges'] as $staff)
+                {
+                    if (array_key_exists ('node', $staff) == false)
+                        continue;
+                    if (array_key_exists ('name', $staff ['node']) == false)
+                        continue;
+                    if (array_key_exists ('full', $staff ['node'] ['name']) == false)
+                        continue;
+                    if (array_key_exists ('role', $staff) == false)
+                        continue;
+
+                    $authors [] = array (
+                        'role' => $staff ['role'],
+                        'name' => $staff ['node'] ['name'] ['full'],
+                        'image' => $staff ['node'] ['image'] ['large']
+                    );
+                }
+
                 $startDate = $series ['startDate'] ['year'] . '/' . $series ['startDate'] ['month'] . '/' . $series ['startDate'] ['day'];
                 $endDate = '';
                 
@@ -163,10 +198,11 @@ query (
                     $series ['title'] ['userPreferred'],
                     $series ['coverImage'] ['large'] ?? '',
                     $series ['description'] ?? '',
-                    $series ['genres'] ?? '',
+                    $series ['genres'] ?? array (),
                     $series ['averageScore'] ?? 0,
                     $startDate,
-                    $endDate
+                    $endDate,
+                    $authors
                 );
             }
             

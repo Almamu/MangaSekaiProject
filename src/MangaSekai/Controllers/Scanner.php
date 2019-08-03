@@ -1,11 +1,52 @@
 <?php declare(strict_types=1);
     namespace MangaSekai\Controllers;
-    
+
+    use \MangaSekai\Database\StaffQuery;
     use \MangaSekai\Database\SeriesQuery;
+    use \MangaSekai\Database\SeriesStaffQuery;
     
     class Scanner
     {
         use \MangaSekai\Controllers\Security;
+
+        private function downloadImage (string $url)
+        {
+            // create temporal file
+            $filename = tempnam (sys_get_temp_dir (), 'mangasekai');
+            file_put_contents ($filename, file_get_contents ($url));
+
+            // find page first
+            $imageType = exif_imagetype ($filename);
+            $mimeType = '';
+
+            switch ($imageType)
+            {
+                case IMAGETYPE_JPEG:
+                    $mimeType = 'image/jpeg';
+                    break;
+
+                case IMAGETYPE_PNG:
+                    $mimeType = 'image/png';
+                    break;
+
+                case IMAGETYPE_GIF:
+                    $mimeType = 'image/gif';
+                    break;
+
+                case IMAGETYPE_BMP:
+                    $mimeType = 'image/bmp';
+                    break;
+
+                default:
+                    throw new \Exception ('Unrecognized image format (' . $imageType . '). Cannot perform chapter upload', \MangaSekai\API\ErrorCodes::UNKNOWN_IMAGE_FORMAT);
+            }
+
+            $result = 'data:' . $mimeType . ';base64,' . base64_encode (file_get_contents ($filename));
+
+            unlink ($filename);
+
+            return $result;
+        }
         
         public function scan (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
@@ -28,49 +69,48 @@
                 $entry = reset ($list);
                 
                 // update the image if needed
-                if ($serie->getImage () == null)
+                if ($serie->getImage () == \MangaSekai\Database\Series::DEFAULT_IMAGE)
                 {
-                    // create temporal file
-                    $filename = tempnam (sys_get_temp_dir (), 'mangasekai');
-                    file_put_contents ($filename, file_get_contents ($entry->getCover ()));
-                    
-                    // find page first
-                    $imageType = exif_imagetype ($filename);
-                    $mimeType = '';
-    
-                    switch ($imageType)
-                    {
-                        case IMAGETYPE_JPEG:
-                            $mimeType = 'image/jpeg';
-                            break;
-        
-                        case IMAGETYPE_PNG:
-                            $mimeType = 'image/png';
-                            break;
-        
-                        case IMAGETYPE_GIF:
-                            $mimeType = 'image/gif';
-                            break;
-        
-                        case IMAGETYPE_BMP:
-                            $mimeType = 'image/bmp';
-                            break;
-        
-                        default:
-                            throw new \Exception ('Unrecognized image format (' . $imageType . '). Cannot perform chapter upload', \MangaSekai\API\ErrorCodes::UNKNOWN_IMAGE_FORMAT);
-                    }
                     
                     $serie->setImage (
-                        'data:' . $mimeType . ';base64,' . base64_encode (file_get_contents ($filename))
+                        $this->downloadImage ($entry->getCover ())
                     );
-                    
-                    unlink ($filename);
                 }
-                
+
                 $serie
                     ->setName ($entry->getName ())
                     ->setDescription ($entry->getDescription ())
                     ->save ();
+
+                // check that authors exist
+                foreach ($entry->getExtraInfo () as $info)
+                {
+                    $staff = StaffQuery::create ()->findOneByName ($info ['name']);
+
+                    if ($staff == null)
+                    {
+                        $staff = new \MangaSekai\Database\Staff ();
+                        $staff
+                            ->setName ($info ['name'])
+                            ->setImage ($this->downloadImage ($info ['image']))
+                            ->save ();
+                    }
+
+                    $seriesStaffEntry = SeriesStaffQuery::create ()
+                        ->filterByIdSerie ($serie->getId ())
+                        ->filterByIdStaff ($staff->getId ())
+                        ->findOne ();
+
+                    if ($seriesStaffEntry == null)
+                    {
+                        $seriesStaffEntry = new \MangaSekai\Database\SeriesStaff ();
+                        $seriesStaffEntry
+                            ->setIdSerie ($serie->getId ())
+                            ->setIdStaff ($staff->getId ())
+                            ->setRole ($info ['role'])
+                            ->save ();
+                    }
+                }
             }
         }
     };
