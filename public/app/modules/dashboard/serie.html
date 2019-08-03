@@ -20,6 +20,20 @@
                     </div>
                 </div>
                 <hr />
+                <h4>Staff</h4>
+                <div class="row">
+                    <div ng-repeat="staff in list.info.Authors" class="col-12 col-md-6">
+                        <a href="#!/staff/{{ staff.IdStaff }}">
+                            <div class="card border-left-primary shadow">
+                                <div class="card-body">
+                                    <img ng-src="{{ staff.Image }}" class="rounded-circle img-staff-profile" />
+                                    {{ staff.Name }} - <small>{{ staff.Role }}</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <hr />
                 <h4>Available chapters</h4>
                 <span ng-repeat="chapter in list.chapters" class="item">
                     <chapter-entry entry="chapter" serie="list.info"></chapter-entry>

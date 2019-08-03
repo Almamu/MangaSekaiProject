@@ -89,3 +89,8 @@ ul#accordionSidebar
     background-color: #1c294e;
     color: white;
 }
+
+.img-staff-profile {
+    width: 64px;
+    height: 64px;
+}

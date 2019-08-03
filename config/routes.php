@@ -4,6 +4,10 @@
             'controller' => '\\MangaSekai\\Controllers\\Installer',
             'function' => 'upload'
         ),
+        '/staff/:id/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Staff',
+            'function' => 'series'
+        ),
         '/scan/' => array (
             'controller' => '\\MangaSekai\\Controllers\\Scanner',
             'function' => 'scan'
