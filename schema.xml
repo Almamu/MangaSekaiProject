@@ -91,8 +91,8 @@
     <column name="image" phpName="Image" type="LONGVARCHAR"/>
   </table>
   <table name="series_staff" idMethod="native" phpName="SeriesStaff">
-    <column name="id_serie" phpName="IdSerie" type="INTEGER" required="true"/>
-    <column name="id_staff" phpName="IdStaff" type="INTEGER" required="true"/>
+    <column name="id_serie" primaryKey="true" phpName="IdSerie" type="INTEGER" required="true"/>
+    <column name="id_staff" primaryKey="true" phpName="IdStaff" type="INTEGER" required="true"/>
     <column name="role" phpName="Role" type="LONGVARCHAR"/>
   </table>
 </database>

@@ -9,7 +9,6 @@ use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\DataFetcher\DataFetcherInterface;
-use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
@@ -137,8 +136,8 @@ class SeriesStaffTableMap extends TableMap
         $this->setPackage('MangaSekai.Database');
         $this->setUseIdGenerator(false);
         // columns
-        $this->addColumn('id_serie', 'IdSerie', 'INTEGER', true, null, null);
-        $this->addColumn('id_staff', 'IdStaff', 'INTEGER', true, null, null);
+        $this->addPrimaryKey('id_serie', 'IdSerie', 'INTEGER', true, null, null);
+        $this->addPrimaryKey('id_staff', 'IdStaff', 'INTEGER', true, null, null);
         $this->addColumn('role', 'Role', 'LONGVARCHAR', false, null, null);
     } // initialize()
 
@@ -148,6 +147,59 @@ class SeriesStaffTableMap extends TableMap
     public function buildRelations()
     {
     } // buildRelations()
+
+    /**
+     * Adds an object to the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database. In some cases you may need to explicitly add objects
+     * to the cache in order to ensure that the same objects are always returned by find*()
+     * and findPk*() calls.
+     *
+     * @param \MangaSekai\Database\SeriesStaff $obj A \MangaSekai\Database\SeriesStaff object.
+     * @param string $key             (optional) key to use for instance map (for performance boost if key was already calculated externally).
+     */
+    public static function addInstanceToPool($obj, $key = null)
+    {
+        if (Propel::isInstancePoolingEnabled()) {
+            if (null === $key) {
+                $key = serialize([(null === $obj->getIdSerie() || is_scalar($obj->getIdSerie()) || is_callable([$obj->getIdSerie(), '__toString']) ? (string) $obj->getIdSerie() : $obj->getIdSerie()), (null === $obj->getIdStaff() || is_scalar($obj->getIdStaff()) || is_callable([$obj->getIdStaff(), '__toString']) ? (string) $obj->getIdStaff() : $obj->getIdStaff())]);
+            } // if key === null
+            self::$instances[$key] = $obj;
+        }
+    }
+
+    /**
+     * Removes an object from the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database.  In some cases -- especially when you override doDelete
+     * methods in your stub classes -- you may need to explicitly remove objects
+     * from the cache in order to prevent returning objects that no longer exist.
+     *
+     * @param mixed $value A \MangaSekai\Database\SeriesStaff object or a primary key value.
+     */
+    public static function removeInstanceFromPool($value)
+    {
+        if (Propel::isInstancePoolingEnabled() && null !== $value) {
+            if (is_object($value) && $value instanceof \MangaSekai\Database\SeriesStaff) {
+                $key = serialize([(null === $value->getIdSerie() || is_scalar($value->getIdSerie()) || is_callable([$value->getIdSerie(), '__toString']) ? (string) $value->getIdSerie() : $value->getIdSerie()), (null === $value->getIdStaff() || is_scalar($value->getIdStaff()) || is_callable([$value->getIdStaff(), '__toString']) ? (string) $value->getIdStaff() : $value->getIdStaff())]);
+
+            } elseif (is_array($value) && count($value) === 2) {
+                // assume we've been passed a primary key";
+                $key = serialize([(null === $value[0] || is_scalar($value[0]) || is_callable([$value[0], '__toString']) ? (string) $value[0] : $value[0]), (null === $value[1] || is_scalar($value[1]) || is_callable([$value[1], '__toString']) ? (string) $value[1] : $value[1])]);
+            } elseif ($value instanceof Criteria) {
+                self::$instances = [];
+
+                return;
+            } else {
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or \MangaSekai\Database\SeriesStaff object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value, true)));
+                throw $e;
+            }
+
+            unset(self::$instances[$key]);
+        }
+    }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -164,7 +216,12 @@ class SeriesStaffTableMap extends TableMap
      */
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return null;
+        // If the PK cannot be derived from the row, return NULL.
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+            return null;
+        }
+
+        return serialize([(null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)]), (null === $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)])]);
     }
 
     /**
@@ -181,7 +238,20 @@ class SeriesStaffTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return '';
+            $pks = [];
+
+        $pks[] = (int) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 0 + $offset
+                : self::translateFieldName('IdSerie', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+        $pks[] = (int) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 1 + $offset
+                : self::translateFieldName('IdStaff', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+
+        return $pks;
     }
 
     /**
@@ -335,10 +405,21 @@ class SeriesStaffTableMap extends TableMap
             // rename for clarity
             $criteria = $values;
         } elseif ($values instanceof \MangaSekai\Database\SeriesStaff) { // it's a model object
-            // create criteria based on pk value
-            $criteria = $values->buildCriteria();
+            // create criteria based on pk values
+            $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            throw new LogicException('The SeriesStaff object has no primary key');
+            $criteria = new Criteria(SeriesStaffTableMap::DATABASE_NAME);
+            // primary key is composite; we therefore, expect
+            // the primary key passed to be an array of pkey values
+            if (count($values) == count($values, COUNT_RECURSIVE)) {
+                // array is not multi-dimensional
+                $values = array($values);
+            }
+            foreach ($values as $value) {
+                $criterion = $criteria->getNewCriterion(SeriesStaffTableMap::COL_ID_SERIE, $value[0]);
+                $criterion->addAnd($criteria->getNewCriterion(SeriesStaffTableMap::COL_ID_STAFF, $value[1]));
+                $criteria->addOr($criterion);
+            }
         }
 
         $query = SeriesStaffQuery::create()->mergeWith($criteria);

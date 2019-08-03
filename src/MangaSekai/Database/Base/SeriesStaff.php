@@ -926,7 +926,9 @@ abstract class SeriesStaff implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        throw new LogicException('The SeriesStaff object has no primary key');
+        $criteria = ChildSeriesStaffQuery::create();
+        $criteria->add(SeriesStaffTableMap::COL_ID_SERIE, $this->id_serie);
+        $criteria->add(SeriesStaffTableMap::COL_ID_STAFF, $this->id_staff);
 
         return $criteria;
     }
@@ -939,7 +941,8 @@ abstract class SeriesStaff implements ActiveRecordInterface
      */
     public function hashCode()
     {
-        $validPk = false;
+        $validPk = null !== $this->getIdSerie() &&
+            null !== $this->getIdStaff();
 
         $validPrimaryKeyFKs = 0;
         $primaryKeyFKs = [];
@@ -954,27 +957,29 @@ abstract class SeriesStaff implements ActiveRecordInterface
     }
 
     /**
-     * Returns NULL since this table doesn't have a primary key.
-     * This method exists only for BC and is deprecated!
-     * @return null
+     * Returns the composite primary key for this object.
+     * The array elements will be in same order as specified in XML.
+     * @return array
      */
     public function getPrimaryKey()
     {
-        return null;
+        $pks = array();
+        $pks[0] = $this->getIdSerie();
+        $pks[1] = $this->getIdStaff();
+
+        return $pks;
     }
 
     /**
-     * Dummy primary key setter.
+     * Set the [composite] primary key.
      *
-     * This function only exists to preserve backwards compatibility.  It is no longer
-     * needed or required by the Persistent interface.  It will be removed in next BC-breaking
-     * release of Propel.
-     *
-     * @deprecated
+     * @param      array $keys The elements of the composite key (order must match the order in XML file).
+     * @return void
      */
-    public function setPrimaryKey($pk)
+    public function setPrimaryKey($keys)
     {
-        // do nothing, because this object doesn't have any primary keys
+        $this->setIdSerie($keys[0]);
+        $this->setIdStaff($keys[1]);
     }
 
     /**
@@ -983,7 +988,7 @@ abstract class SeriesStaff implements ActiveRecordInterface
      */
     public function isPrimaryKeyNull()
     {
-        return ;
+        return (null === $this->getIdSerie()) && (null === $this->getIdStaff());
     }
 
     /**
