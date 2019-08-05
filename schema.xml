@@ -3,6 +3,7 @@
   <table name="chapter_tracker" idMethod="native" phpName="ChapterTracker">
     <column name="id_chapter" phpName="IdChapter" type="INTEGER" size="10" primaryKey="true" required="true"/>
     <column name="id_user" phpName="IdUser" type="INTEGER" size="10" primaryKey="true" required="true"/>
+    <column name="page" phpName="Page" type="INTEGER" size="10" required="true"/>
     <foreign-key foreignTable="chapters" name="fk_chapter_tracker" onDelete="CASCADE" onUpdate="CASCADE">
       <reference local="id_chapter" foreign="id"/>
     </foreign-key>

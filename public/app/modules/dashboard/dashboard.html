@@ -25,6 +25,12 @@
 
             </nav>
             <div class="container-fluid">
+                <h4 ng-show="tracking.length > 0">Continue where you left from...</h4>
+                <span ng-repeat="manga in tracking" class="item">
+                    <manga-entry-tracker entry="manga"></manga-entry-tracker>
+                </span>
+
+                <h4>Discover</h4>
                 <span ng-repeat="manga in list" class="item">
                     <manga-entry entry="manga"></manga-entry>
                 </span>

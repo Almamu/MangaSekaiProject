@@ -70,6 +70,11 @@
         {
             return $this->parameters [$name] ?? null;
         }
+        
+        function hasParameter (string $name)
+        {
+            return array_key_exists ($name, $this->parameters);
+        }
 
         function getQueryStringParameter (string $name)
         {

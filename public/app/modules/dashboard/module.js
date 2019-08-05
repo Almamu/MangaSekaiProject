@@ -31,6 +31,17 @@ angular.module ('mangasekai.dashboard', [])
         templateUrl: '/app/modules/dashboard/serie-entry.html'
     }
 }])
+.directive ('mangaEntryTracker', [function ()
+{
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            entry: '='
+        },
+        templateUrl: '/app/modules/dashboard/serie-entry-tracker.html'
+    }
+}])
 .directive ('chapterEntry', [function ()
 {
     return {
@@ -45,12 +56,20 @@ angular.module ('mangasekai.dashboard', [])
 }])
 .controller ('DashboardController', ['$http', '$scope', 'API', function ($http, $scope, API)
 {
-    $scope.list = {pagination: {}};
+    $scope.list = {};
+    $scope.tracking = [];
 
     $http.get (API ('series')).then (
         function (result)
         {
             $scope.list = result.data;
+        }
+    );
+
+    $http.get (API ('track/series')).then (
+        function (result)
+        {
+            $scope.tracking = result.data;
         }
     );
 

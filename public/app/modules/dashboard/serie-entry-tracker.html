@@ -1,0 +1,9 @@
+<div class="series-entry mx-lg-3 mx-xl-4 mx-md-2 mx-1">
+    <a ng-href="#!/serie/{{ entry.Series.Id }}/chapter/{{ entry.Chapter.Id }}/?page={{ entry.ChapterTrack.Page }}">
+        <img ng-src="{{ entry.Series.Image }}" class="series-image shadow" />
+    </a>
+    <div class="mt-2">
+        <div class="mb-0 series-name-parent"><a class="text-gray-800 series-name" ng-href="#!/serie/{{ entry.Series.Id }}/chapter/{{ entry.Chapter.Id }}/?page={{ entry.ChapterTrack.Page }}">{{ entry.Series.Name }}</a></div>
+        <div class="text-xs text-primary mb-0">Chapter {{ entry.Chapter.Number}}<span ng-show="entry.ChapterTrack.Page > 0">, page {{ entry.ChapterTrack.Page }}</span></div>
+    </div>
+</div>

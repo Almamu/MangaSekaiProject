@@ -78,6 +78,13 @@ abstract class ChapterTracker implements ActiveRecordInterface
     protected $id_user;
 
     /**
+     * The value for the page field.
+     *
+     * @var        int
+     */
+    protected $page;
+
+    /**
      * @var        ChildChapters
      */
     protected $aChapters;
@@ -341,6 +348,16 @@ abstract class ChapterTracker implements ActiveRecordInterface
     }
 
     /**
+     * Get the [page] column value.
+     *
+     * @return int
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
      * Set the value of [id_chapter] column.
      *
      * @param int $v new value
@@ -389,6 +406,26 @@ abstract class ChapterTracker implements ActiveRecordInterface
     } // setIdUser()
 
     /**
+     * Set the value of [page] column.
+     *
+     * @param int $v new value
+     * @return $this|\MangaSekai\Database\ChapterTracker The current object (for fluent API support)
+     */
+    public function setPage($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->page !== $v) {
+            $this->page = $v;
+            $this->modifiedColumns[ChapterTrackerTableMap::COL_PAGE] = true;
+        }
+
+        return $this;
+    } // setPage()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -429,6 +466,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ChapterTrackerTableMap::translateFieldName('IdUser', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id_user = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ChapterTrackerTableMap::translateFieldName('Page', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->page = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -437,7 +477,7 @@ abstract class ChapterTracker implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 2; // 2 = ChapterTrackerTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 3; // 3 = ChapterTrackerTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\ChapterTracker'), 0, $e);
@@ -667,6 +707,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
         if ($this->isColumnModified(ChapterTrackerTableMap::COL_ID_USER)) {
             $modifiedColumns[':p' . $index++]  = 'id_user';
         }
+        if ($this->isColumnModified(ChapterTrackerTableMap::COL_PAGE)) {
+            $modifiedColumns[':p' . $index++]  = 'page';
+        }
 
         $sql = sprintf(
             'INSERT INTO chapter_tracker (%s) VALUES (%s)',
@@ -683,6 +726,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
                         break;
                     case 'id_user':
                         $stmt->bindValue($identifier, $this->id_user, PDO::PARAM_INT);
+                        break;
+                    case 'page':
+                        $stmt->bindValue($identifier, $this->page, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -745,6 +791,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
             case 1:
                 return $this->getIdUser();
                 break;
+            case 2:
+                return $this->getPage();
+                break;
             default:
                 return null;
                 break;
@@ -777,6 +826,7 @@ abstract class ChapterTracker implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getIdChapter(),
             $keys[1] => $this->getIdUser(),
+            $keys[2] => $this->getPage(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -854,6 +904,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
             case 1:
                 $this->setIdUser($value);
                 break;
+            case 2:
+                $this->setPage($value);
+                break;
         } // switch()
 
         return $this;
@@ -885,6 +938,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
         }
         if (array_key_exists($keys[1], $arr)) {
             $this->setIdUser($arr[$keys[1]]);
+        }
+        if (array_key_exists($keys[2], $arr)) {
+            $this->setPage($arr[$keys[2]]);
         }
     }
 
@@ -932,6 +988,9 @@ abstract class ChapterTracker implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ChapterTrackerTableMap::COL_ID_USER)) {
             $criteria->add(ChapterTrackerTableMap::COL_ID_USER, $this->id_user);
+        }
+        if ($this->isColumnModified(ChapterTrackerTableMap::COL_PAGE)) {
+            $criteria->add(ChapterTrackerTableMap::COL_PAGE, $this->page);
         }
 
         return $criteria;
@@ -1043,6 +1102,7 @@ abstract class ChapterTracker implements ActiveRecordInterface
     {
         $copyObj->setIdChapter($this->getIdChapter());
         $copyObj->setIdUser($this->getIdUser());
+        $copyObj->setPage($this->getPage());
         if ($makeNew) {
             $copyObj->setNew(true);
         }
@@ -1187,6 +1247,7 @@ abstract class ChapterTracker implements ActiveRecordInterface
         }
         $this->id_chapter = null;
         $this->id_user = null;
+        $this->page = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();

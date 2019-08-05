@@ -37,7 +37,7 @@ img.edit-icon
 .page-container img:not(.ngImageAppearLoader)
 {
     max-width: 900px;
-    min-height: 320px;
+    min-height: 1000px;
     width: 100%;
 }
 

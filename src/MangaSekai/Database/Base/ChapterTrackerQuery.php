@@ -22,9 +22,11 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildChapterTrackerQuery orderByIdChapter($order = Criteria::ASC) Order by the id_chapter column
  * @method     ChildChapterTrackerQuery orderByIdUser($order = Criteria::ASC) Order by the id_user column
+ * @method     ChildChapterTrackerQuery orderByPage($order = Criteria::ASC) Order by the page column
  *
  * @method     ChildChapterTrackerQuery groupByIdChapter() Group by the id_chapter column
  * @method     ChildChapterTrackerQuery groupByIdUser() Group by the id_user column
+ * @method     ChildChapterTrackerQuery groupByPage() Group by the page column
  *
  * @method     ChildChapterTrackerQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildChapterTrackerQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -60,17 +62,20 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildChapterTracker findOneOrCreate(ConnectionInterface $con = null) Return the first ChildChapterTracker matching the query, or a new ChildChapterTracker object populated from the query conditions when no match is found
  *
  * @method     ChildChapterTracker findOneByIdChapter(int $id_chapter) Return the first ChildChapterTracker filtered by the id_chapter column
- * @method     ChildChapterTracker findOneByIdUser(int $id_user) Return the first ChildChapterTracker filtered by the id_user column *
+ * @method     ChildChapterTracker findOneByIdUser(int $id_user) Return the first ChildChapterTracker filtered by the id_user column
+ * @method     ChildChapterTracker findOneByPage(int $page) Return the first ChildChapterTracker filtered by the page column *
 
  * @method     ChildChapterTracker requirePk($key, ConnectionInterface $con = null) Return the ChildChapterTracker by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildChapterTracker requireOne(ConnectionInterface $con = null) Return the first ChildChapterTracker matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildChapterTracker requireOneByIdChapter(int $id_chapter) Return the first ChildChapterTracker filtered by the id_chapter column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildChapterTracker requireOneByIdUser(int $id_user) Return the first ChildChapterTracker filtered by the id_user column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildChapterTracker requireOneByPage(int $page) Return the first ChildChapterTracker filtered by the page column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildChapterTracker[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildChapterTracker objects based on current ModelCriteria
  * @method     ChildChapterTracker[]|ObjectCollection findByIdChapter(int $id_chapter) Return ChildChapterTracker objects filtered by the id_chapter column
  * @method     ChildChapterTracker[]|ObjectCollection findByIdUser(int $id_user) Return ChildChapterTracker objects filtered by the id_user column
+ * @method     ChildChapterTracker[]|ObjectCollection findByPage(int $page) Return ChildChapterTracker objects filtered by the page column
  * @method     ChildChapterTracker[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -169,7 +174,7 @@ abstract class ChapterTrackerQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id_chapter, id_user FROM chapter_tracker WHERE id_chapter = :p0 AND id_user = :p1';
+        $sql = 'SELECT id_chapter, id_user, page FROM chapter_tracker WHERE id_chapter = :p0 AND id_user = :p1';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
@@ -355,6 +360,47 @@ abstract class ChapterTrackerQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ChapterTrackerTableMap::COL_ID_USER, $idUser, $comparison);
+    }
+
+    /**
+     * Filter the query on the page column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByPage(1234); // WHERE page = 1234
+     * $query->filterByPage(array(12, 34)); // WHERE page IN (12, 34)
+     * $query->filterByPage(array('min' => 12)); // WHERE page > 12
+     * </code>
+     *
+     * @param     mixed $page The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildChapterTrackerQuery The current query, for fluid interface
+     */
+    public function filterByPage($page = null, $comparison = null)
+    {
+        if (is_array($page)) {
+            $useMinMax = false;
+            if (isset($page['min'])) {
+                $this->addUsingAlias(ChapterTrackerTableMap::COL_PAGE, $page['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($page['max'])) {
+                $this->addUsingAlias(ChapterTrackerTableMap::COL_PAGE, $page['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(ChapterTrackerTableMap::COL_PAGE, $page, $comparison);
     }
 
     /**

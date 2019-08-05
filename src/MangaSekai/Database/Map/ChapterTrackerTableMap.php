@@ -59,7 +59,7 @@ class ChapterTrackerTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 2;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class ChapterTrackerTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 2;
+    const NUM_HYDRATE_COLUMNS = 3;
 
     /**
      * the column name for the id_chapter field
@@ -80,6 +80,11 @@ class ChapterTrackerTableMap extends TableMap
      * the column name for the id_user field
      */
     const COL_ID_USER = 'chapter_tracker.id_user';
+
+    /**
+     * the column name for the page field
+     */
+    const COL_PAGE = 'chapter_tracker.page';
 
     /**
      * The default string format for model objects of the related table
@@ -93,11 +98,11 @@ class ChapterTrackerTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('IdChapter', 'IdUser', ),
-        self::TYPE_CAMELNAME     => array('idChapter', 'idUser', ),
-        self::TYPE_COLNAME       => array(ChapterTrackerTableMap::COL_ID_CHAPTER, ChapterTrackerTableMap::COL_ID_USER, ),
-        self::TYPE_FIELDNAME     => array('id_chapter', 'id_user', ),
-        self::TYPE_NUM           => array(0, 1, )
+        self::TYPE_PHPNAME       => array('IdChapter', 'IdUser', 'Page', ),
+        self::TYPE_CAMELNAME     => array('idChapter', 'idUser', 'page', ),
+        self::TYPE_COLNAME       => array(ChapterTrackerTableMap::COL_ID_CHAPTER, ChapterTrackerTableMap::COL_ID_USER, ChapterTrackerTableMap::COL_PAGE, ),
+        self::TYPE_FIELDNAME     => array('id_chapter', 'id_user', 'page', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -107,11 +112,11 @@ class ChapterTrackerTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('IdChapter' => 0, 'IdUser' => 1, ),
-        self::TYPE_CAMELNAME     => array('idChapter' => 0, 'idUser' => 1, ),
-        self::TYPE_COLNAME       => array(ChapterTrackerTableMap::COL_ID_CHAPTER => 0, ChapterTrackerTableMap::COL_ID_USER => 1, ),
-        self::TYPE_FIELDNAME     => array('id_chapter' => 0, 'id_user' => 1, ),
-        self::TYPE_NUM           => array(0, 1, )
+        self::TYPE_PHPNAME       => array('IdChapter' => 0, 'IdUser' => 1, 'Page' => 2, ),
+        self::TYPE_CAMELNAME     => array('idChapter' => 0, 'idUser' => 1, 'page' => 2, ),
+        self::TYPE_COLNAME       => array(ChapterTrackerTableMap::COL_ID_CHAPTER => 0, ChapterTrackerTableMap::COL_ID_USER => 1, ChapterTrackerTableMap::COL_PAGE => 2, ),
+        self::TYPE_FIELDNAME     => array('id_chapter' => 0, 'id_user' => 1, 'page' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -133,6 +138,7 @@ class ChapterTrackerTableMap extends TableMap
         // columns
         $this->addForeignPrimaryKey('id_chapter', 'IdChapter', 'INTEGER' , 'chapters', 'id', true, 10, null);
         $this->addForeignPrimaryKey('id_user', 'IdUser', 'INTEGER' , 'users', 'id', true, 10, null);
+        $this->addColumn('page', 'Page', 'INTEGER', true, 10, null);
     } // initialize()
 
     /**
@@ -361,9 +367,11 @@ class ChapterTrackerTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(ChapterTrackerTableMap::COL_ID_CHAPTER);
             $criteria->addSelectColumn(ChapterTrackerTableMap::COL_ID_USER);
+            $criteria->addSelectColumn(ChapterTrackerTableMap::COL_PAGE);
         } else {
             $criteria->addSelectColumn($alias . '.id_chapter');
             $criteria->addSelectColumn($alias . '.id_user');
+            $criteria->addSelectColumn($alias . '.page');
         }
     }
 
