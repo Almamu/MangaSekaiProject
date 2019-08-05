@@ -22,6 +22,7 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
     $scope.previous = null;
     $scope.token = encodeURIComponent (AuthenticationService.getToken ());
     $scope.lastPageNumber = -1;
+    $scope.scrollPending = false;
 
     $scope.goBack = function ()
     {
@@ -114,7 +115,7 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
             $scope.lastPageNumber = pageNumber;
 
             if (selectedPage == (pages.length - 1) && $scope.next)
-                $http.post (API ('track/series/' + $routeParams.serie+ '/chapters'), {chapterid: $scope.next.Id, page: 0});
+                $http.post (API ('track/series/' + $routeParams.serie + '/chapters'), {chapterid: $scope.next.Id, page: 0});
 
             // update read page for current chapter to last page
             $http.post (API ('track/series/' + $routeParams.serie + '/chapters'), {chapterid: $routeParams.chapter, page: pageNumber});
