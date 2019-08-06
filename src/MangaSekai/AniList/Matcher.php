@@ -184,7 +184,7 @@ query (
                         'role' => $staff ['role'],
                         'name' => $staff ['node'] ['name'] ['full'],
                         'image' => $staff ['node'] ['image'] ['large'],
-                        'description' => $staff ['node'] ['description']
+                        'description' => $staff ['node'] ['description'] ?? ''
                     );
                 }
 
