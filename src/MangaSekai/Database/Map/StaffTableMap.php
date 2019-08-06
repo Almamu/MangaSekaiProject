@@ -59,7 +59,7 @@ class StaffTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 3;
+    const NUM_COLUMNS = 4;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class StaffTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 3;
+    const NUM_HYDRATE_COLUMNS = 4;
 
     /**
      * the column name for the id field
@@ -87,6 +87,11 @@ class StaffTableMap extends TableMap
     const COL_IMAGE = 'staff.image';
 
     /**
+     * the column name for the description field
+     */
+    const COL_DESCRIPTION = 'staff.description';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -98,11 +103,11 @@ class StaffTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', 'Image', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', 'image', ),
-        self::TYPE_COLNAME       => array(StaffTableMap::COL_ID, StaffTableMap::COL_NAME, StaffTableMap::COL_IMAGE, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', 'image', ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'Image', 'Description', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'image', 'description', ),
+        self::TYPE_COLNAME       => array(StaffTableMap::COL_ID, StaffTableMap::COL_NAME, StaffTableMap::COL_IMAGE, StaffTableMap::COL_DESCRIPTION, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'image', 'description', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -112,11 +117,11 @@ class StaffTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Image' => 2, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'image' => 2, ),
-        self::TYPE_COLNAME       => array(StaffTableMap::COL_ID => 0, StaffTableMap::COL_NAME => 1, StaffTableMap::COL_IMAGE => 2, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'image' => 2, ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Image' => 2, 'Description' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'image' => 2, 'description' => 3, ),
+        self::TYPE_COLNAME       => array(StaffTableMap::COL_ID => 0, StaffTableMap::COL_NAME => 1, StaffTableMap::COL_IMAGE => 2, StaffTableMap::COL_DESCRIPTION => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'image' => 2, 'description' => 3, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -139,6 +144,7 @@ class StaffTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('name', 'Name', 'LONGVARCHAR', true, null, null);
         $this->addColumn('image', 'Image', 'LONGVARCHAR', false, null, null);
+        $this->addColumn('description', 'Description', 'LONGVARCHAR', true, null, '');
     } // initialize()
 
     /**
@@ -292,10 +298,12 @@ class StaffTableMap extends TableMap
             $criteria->addSelectColumn(StaffTableMap::COL_ID);
             $criteria->addSelectColumn(StaffTableMap::COL_NAME);
             $criteria->addSelectColumn(StaffTableMap::COL_IMAGE);
+            $criteria->addSelectColumn(StaffTableMap::COL_DESCRIPTION);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.image');
+            $criteria->addSelectColumn($alias . '.description');
         }
     }
 

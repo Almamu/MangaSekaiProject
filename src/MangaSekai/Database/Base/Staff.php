@@ -81,6 +81,14 @@ abstract class Staff implements ActiveRecordInterface
     protected $image;
 
     /**
+     * The value for the description field.
+     *
+     * Note: this column has a database default value of: ''
+     * @var        string
+     */
+    protected $description;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
@@ -89,10 +97,23 @@ abstract class Staff implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see __construct()
+     */
+    public function applyDefaultValues()
+    {
+        $this->description = '';
+    }
+
+    /**
      * Initializes internal state of MangaSekai\Database\Base\Staff object.
+     * @see applyDefaults()
      */
     public function __construct()
     {
+        $this->applyDefaultValues();
     }
 
     /**
@@ -344,6 +365,16 @@ abstract class Staff implements ActiveRecordInterface
     }
 
     /**
+     * Get the [description] column value.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -404,6 +435,26 @@ abstract class Staff implements ActiveRecordInterface
     } // setImage()
 
     /**
+     * Set the value of [description] column.
+     *
+     * @param string $v new value
+     * @return $this|\MangaSekai\Database\Staff The current object (for fluent API support)
+     */
+    public function setDescription($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->description !== $v) {
+            $this->description = $v;
+            $this->modifiedColumns[StaffTableMap::COL_DESCRIPTION] = true;
+        }
+
+        return $this;
+    } // setDescription()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -413,6 +464,10 @@ abstract class Staff implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->description !== '') {
+                return false;
+            }
+
         // otherwise, everything was equal, so return TRUE
         return true;
     } // hasOnlyDefaultValues()
@@ -447,6 +502,9 @@ abstract class Staff implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : StaffTableMap::translateFieldName('Image', TableMap::TYPE_PHPNAME, $indexType)];
             $this->image = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : StaffTableMap::translateFieldName('Description', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->description = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -455,7 +513,7 @@ abstract class Staff implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 3; // 3 = StaffTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 4; // 4 = StaffTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\Staff'), 0, $e);
@@ -665,6 +723,9 @@ abstract class Staff implements ActiveRecordInterface
         if ($this->isColumnModified(StaffTableMap::COL_IMAGE)) {
             $modifiedColumns[':p' . $index++]  = 'image';
         }
+        if ($this->isColumnModified(StaffTableMap::COL_DESCRIPTION)) {
+            $modifiedColumns[':p' . $index++]  = 'description';
+        }
 
         $sql = sprintf(
             'INSERT INTO staff (%s) VALUES (%s)',
@@ -684,6 +745,9 @@ abstract class Staff implements ActiveRecordInterface
                         break;
                     case 'image':
                         $stmt->bindValue($identifier, $this->image, PDO::PARAM_STR);
+                        break;
+                    case 'description':
+                        $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -756,6 +820,9 @@ abstract class Staff implements ActiveRecordInterface
             case 2:
                 return $this->getImage();
                 break;
+            case 3:
+                return $this->getDescription();
+                break;
             default:
                 return null;
                 break;
@@ -788,6 +855,7 @@ abstract class Staff implements ActiveRecordInterface
             $keys[0] => $this->getId(),
             $keys[1] => $this->getName(),
             $keys[2] => $this->getImage(),
+            $keys[3] => $this->getDescription(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -836,6 +904,9 @@ abstract class Staff implements ActiveRecordInterface
             case 2:
                 $this->setImage($value);
                 break;
+            case 3:
+                $this->setDescription($value);
+                break;
         } // switch()
 
         return $this;
@@ -870,6 +941,9 @@ abstract class Staff implements ActiveRecordInterface
         }
         if (array_key_exists($keys[2], $arr)) {
             $this->setImage($arr[$keys[2]]);
+        }
+        if (array_key_exists($keys[3], $arr)) {
+            $this->setDescription($arr[$keys[3]]);
         }
     }
 
@@ -920,6 +994,9 @@ abstract class Staff implements ActiveRecordInterface
         }
         if ($this->isColumnModified(StaffTableMap::COL_IMAGE)) {
             $criteria->add(StaffTableMap::COL_IMAGE, $this->image);
+        }
+        if ($this->isColumnModified(StaffTableMap::COL_DESCRIPTION)) {
+            $criteria->add(StaffTableMap::COL_DESCRIPTION, $this->description);
         }
 
         return $criteria;
@@ -1009,6 +1086,7 @@ abstract class Staff implements ActiveRecordInterface
     {
         $copyObj->setName($this->getName());
         $copyObj->setImage($this->getImage());
+        $copyObj->setDescription($this->getDescription());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1047,8 +1125,10 @@ abstract class Staff implements ActiveRecordInterface
         $this->id = null;
         $this->name = null;
         $this->image = null;
+        $this->description = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);

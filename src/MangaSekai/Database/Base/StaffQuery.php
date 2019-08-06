@@ -22,10 +22,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildStaffQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildStaffQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method     ChildStaffQuery orderByImage($order = Criteria::ASC) Order by the image column
+ * @method     ChildStaffQuery orderByDescription($order = Criteria::ASC) Order by the description column
  *
  * @method     ChildStaffQuery groupById() Group by the id column
  * @method     ChildStaffQuery groupByName() Group by the name column
  * @method     ChildStaffQuery groupByImage() Group by the image column
+ * @method     ChildStaffQuery groupByDescription() Group by the description column
  *
  * @method     ChildStaffQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildStaffQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -40,7 +42,8 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildStaff findOneById(int $id) Return the first ChildStaff filtered by the id column
  * @method     ChildStaff findOneByName(string $name) Return the first ChildStaff filtered by the name column
- * @method     ChildStaff findOneByImage(string $image) Return the first ChildStaff filtered by the image column *
+ * @method     ChildStaff findOneByImage(string $image) Return the first ChildStaff filtered by the image column
+ * @method     ChildStaff findOneByDescription(string $description) Return the first ChildStaff filtered by the description column *
 
  * @method     ChildStaff requirePk($key, ConnectionInterface $con = null) Return the ChildStaff by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildStaff requireOne(ConnectionInterface $con = null) Return the first ChildStaff matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -48,11 +51,13 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildStaff requireOneById(int $id) Return the first ChildStaff filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildStaff requireOneByName(string $name) Return the first ChildStaff filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildStaff requireOneByImage(string $image) Return the first ChildStaff filtered by the image column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildStaff requireOneByDescription(string $description) Return the first ChildStaff filtered by the description column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildStaff[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildStaff objects based on current ModelCriteria
  * @method     ChildStaff[]|ObjectCollection findById(int $id) Return ChildStaff objects filtered by the id column
  * @method     ChildStaff[]|ObjectCollection findByName(string $name) Return ChildStaff objects filtered by the name column
  * @method     ChildStaff[]|ObjectCollection findByImage(string $image) Return ChildStaff objects filtered by the image column
+ * @method     ChildStaff[]|ObjectCollection findByDescription(string $description) Return ChildStaff objects filtered by the description column
  * @method     ChildStaff[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -151,7 +156,7 @@ abstract class StaffQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, image FROM staff WHERE id = :p0';
+        $sql = 'SELECT id, name, image, description FROM staff WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -330,6 +335,31 @@ abstract class StaffQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(StaffTableMap::COL_IMAGE, $image, $comparison);
+    }
+
+    /**
+     * Filter the query on the description column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByDescription('fooValue');   // WHERE description = 'fooValue'
+     * $query->filterByDescription('%fooValue%', Criteria::LIKE); // WHERE description LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $description The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildStaffQuery The current query, for fluid interface
+     */
+    public function filterByDescription($description = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($description)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(StaffTableMap::COL_DESCRIPTION, $description, $comparison);
     }
 
     /**

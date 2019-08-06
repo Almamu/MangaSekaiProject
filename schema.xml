@@ -91,6 +91,7 @@
     <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
     <column name="name" phpName="Name" type="LONGVARCHAR" required="true"/>
     <column name="image" phpName="Image" type="LONGVARCHAR"/>
+    <column name="description" phpName="Description" type="LONGVARCHAR" required="true" defaultValue="" />
   </table>
   <table name="series_staff" idMethod="native" phpName="SeriesStaff">
     <column name="id_serie" primaryKey="true" phpName="IdSerie" type="INTEGER" required="true"/>

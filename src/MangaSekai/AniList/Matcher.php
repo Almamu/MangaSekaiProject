@@ -113,6 +113,7 @@ query (
                         image {
                             large
                         }
+                        description
                     }
                 }
             }
@@ -182,7 +183,8 @@ query (
                     $authors [] = array (
                         'role' => $staff ['role'],
                         'name' => $staff ['node'] ['name'] ['full'],
-                        'image' => $staff ['node'] ['image'] ['large']
+                        'image' => $staff ['node'] ['image'] ['large'],
+                        'description' => $staff ['node'] ['description']
                     );
                 }
 

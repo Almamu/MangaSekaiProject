@@ -71,7 +71,6 @@
                 // update the image if needed
                 if ($serie->getImage () == \MangaSekai\Database\Series::DEFAULT_IMAGE)
                 {
-                    
                     $serie->setImage (
                         $this->downloadImage ($entry->getCover ())
                     );
@@ -93,6 +92,7 @@
                         $staff
                             ->setName ($info ['name'])
                             ->setImage ($this->downloadImage ($info ['image']))
+                            ->setDescription ($info ['description'])
                             ->save ();
                     }
 

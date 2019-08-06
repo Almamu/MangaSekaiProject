@@ -16,7 +16,7 @@ angular.module ('mangasekai.dashboard', [])
     ).when (
         '/staff/:id/', {
             controller: 'StaffController',
-            templateUrl: '/app/modules/dashboard/dashboard.html'
+            templateUrl: '/app/modules/dashboard/staff.html'
         }
     );
 }])
