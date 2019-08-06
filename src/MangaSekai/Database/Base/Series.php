@@ -118,6 +118,14 @@ abstract class Series implements ActiveRecordInterface
     protected $image;
 
     /**
+     * The value for the path field.
+     *
+     * Note: this column has a database default value of: ''
+     * @var        string
+     */
+    protected $path;
+
+    /**
      * @var        ObjectCollection|ChildChapters[] Collection to store aggregation of ChildChapters objects.
      */
     protected $collChapterss;
@@ -158,6 +166,7 @@ abstract class Series implements ActiveRecordInterface
     public function applyDefaultValues()
     {
         $this->synced = 0;
+        $this->path = '';
     }
 
     /**
@@ -458,6 +467,16 @@ abstract class Series implements ActiveRecordInterface
     }
 
     /**
+     * Get the [path] column value.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -598,6 +617,26 @@ abstract class Series implements ActiveRecordInterface
     } // setImage()
 
     /**
+     * Set the value of [path] column.
+     *
+     * @param string $v new value
+     * @return $this|\MangaSekai\Database\Series The current object (for fluent API support)
+     */
+    public function setPath($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->path !== $v) {
+            $this->path = $v;
+            $this->modifiedColumns[SeriesTableMap::COL_PATH] = true;
+        }
+
+        return $this;
+    } // setPath()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -608,6 +647,10 @@ abstract class Series implements ActiveRecordInterface
     public function hasOnlyDefaultValues()
     {
             if ($this->synced !== 0) {
+                return false;
+            }
+
+            if ($this->path !== '') {
                 return false;
             }
 
@@ -657,6 +700,9 @@ abstract class Series implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : SeriesTableMap::translateFieldName('Image', TableMap::TYPE_PHPNAME, $indexType)];
             $this->image = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : SeriesTableMap::translateFieldName('Path', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->path = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -665,7 +711,7 @@ abstract class Series implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = SeriesTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 8; // 8 = SeriesTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\MangaSekai\\Database\\Series'), 0, $e);
@@ -925,6 +971,9 @@ abstract class Series implements ActiveRecordInterface
         if ($this->isColumnModified(SeriesTableMap::COL_IMAGE)) {
             $modifiedColumns[':p' . $index++]  = 'image';
         }
+        if ($this->isColumnModified(SeriesTableMap::COL_PATH)) {
+            $modifiedColumns[':p' . $index++]  = 'path';
+        }
 
         $sql = sprintf(
             'INSERT INTO series (%s) VALUES (%s)',
@@ -956,6 +1005,9 @@ abstract class Series implements ActiveRecordInterface
                         break;
                     case 'image':
                         $stmt->bindValue($identifier, $this->image, PDO::PARAM_STR);
+                        break;
+                    case 'path':
+                        $stmt->bindValue($identifier, $this->path, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1040,6 +1092,9 @@ abstract class Series implements ActiveRecordInterface
             case 6:
                 return $this->getImage();
                 break;
+            case 7:
+                return $this->getPath();
+                break;
             default:
                 return null;
                 break;
@@ -1077,6 +1132,7 @@ abstract class Series implements ActiveRecordInterface
             $keys[4] => $this->getDescription(),
             $keys[5] => $this->getSynced(),
             $keys[6] => $this->getImage(),
+            $keys[7] => $this->getPath(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1169,6 +1225,9 @@ abstract class Series implements ActiveRecordInterface
             case 6:
                 $this->setImage($value);
                 break;
+            case 7:
+                $this->setPath($value);
+                break;
         } // switch()
 
         return $this;
@@ -1215,6 +1274,9 @@ abstract class Series implements ActiveRecordInterface
         }
         if (array_key_exists($keys[6], $arr)) {
             $this->setImage($arr[$keys[6]]);
+        }
+        if (array_key_exists($keys[7], $arr)) {
+            $this->setPath($arr[$keys[7]]);
         }
     }
 
@@ -1277,6 +1339,9 @@ abstract class Series implements ActiveRecordInterface
         }
         if ($this->isColumnModified(SeriesTableMap::COL_IMAGE)) {
             $criteria->add(SeriesTableMap::COL_IMAGE, $this->image);
+        }
+        if ($this->isColumnModified(SeriesTableMap::COL_PATH)) {
+            $criteria->add(SeriesTableMap::COL_PATH, $this->path);
         }
 
         return $criteria;
@@ -1370,6 +1435,7 @@ abstract class Series implements ActiveRecordInterface
         $copyObj->setDescription($this->getDescription());
         $copyObj->setSynced($this->getSynced());
         $copyObj->setImage($this->getImage());
+        $copyObj->setPath($this->getPath());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
@@ -1931,6 +1997,7 @@ abstract class Series implements ActiveRecordInterface
         $this->description = null;
         $this->synced = null;
         $this->image = null;
+        $this->path = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->applyDefaultValues();

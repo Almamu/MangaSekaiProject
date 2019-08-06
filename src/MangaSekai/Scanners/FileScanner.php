@@ -33,7 +33,7 @@
             // create series
             foreach ($series as $name => $serie)
             {
-                $serieEntry = SeriesQuery::create ()->findOneByName ($name);
+                $serieEntry = SeriesQuery::create ()->findOneByPath ($name);
                 
                 if ($serieEntry == null)
                 {
@@ -42,7 +42,8 @@
                         ->setName ($name)
                         ->setChapterCount (0)
                         ->setPagesCount (0)
-                        ->setDescription ('');
+                        ->setDescription ('')
+                        ->setPath ($name);
                 }
     
                 // save the entry
@@ -117,7 +118,7 @@
             
             foreach ($seriesEntry as $entry)
             {
-                if (array_key_exists ($entry->getName (), $series) === false)
+                if (array_key_exists ($entry->getPath (), $series) === false)
                 {
                     // find all the chapters for this series and delete the chapters and the pages
                     $chapters = ChaptersQuery::create()->findByIdSeries ($entry->getId ());

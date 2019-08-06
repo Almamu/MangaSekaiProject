@@ -41,6 +41,7 @@
     <column name="description" phpName="Description" type="LONGVARCHAR" required="true"/>
     <column name="synced" phpName="Synced" type="INTEGER" size="1" required="true" default="0"/>
     <column name="image" phpName="Image" type="LONGVARCHAR"/>
+    <column name="path" phpName="Path" type="LONGVARCHAR" required="true" defaultValue=""/>
     <vendor type="mysql">
       <parameter name="Engine" value="InnoDB"/>
     </vendor>

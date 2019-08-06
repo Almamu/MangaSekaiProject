@@ -8,6 +8,9 @@
                     <i class="fa fa-arrow-left"></i>
                 </button>
                 <h4 class="my-2" ng-show="serie.Name">{{ serie.Name }} - Chapter {{ chapter.Number }}</h4>
+                <form class="d-none d-sm-flex form-inline ml-auto mr-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <button class="btn" ng-hide="lastPageNumber == -1" ng-click="markAsNotRead ()" data-toggle="tooltip" data-placement="bottom" title="Mark chapter as not read"><i class="fa fa-eye-slash"></i></button>
+                </form>
             </nav>
             <div class="container-fluid text-center">
                 <div ng-show="loaded == 'loading'">

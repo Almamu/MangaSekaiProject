@@ -56,6 +56,10 @@
             'controller' => '\\MangaSekai\\Controllers\\Track',
             'function' => 'chapters'
         ),
+        '/track/series/:id/chapters/:chapterid/unread/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Track',
+            'function' => 'unread'
+        ),
         '/match/search/' => array (
             'controller' => '\\MangaSekai\\Controllers\\Match',
             'function' => 'search'

@@ -47,8 +47,6 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
 
     function viewerLoaded ()
     {
-        // add the serie to the tracker
-        $http.post (API ('track/series'), {serieid: $routeParams.serie});
         // check if the user is on a specific page
         $http.get (API ('track/series/' + $routeParams.serie + '/chapters/' + $routeParams.chapter)).then (
             function (result)
@@ -75,10 +73,6 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
                         }
                     });
                 }
-                else
-                    // add the chapter to the tracker
-                    $http.post (API ('track/series/' + $routeParams.serie + '/chapters'), {chapterid: $routeParams.chapter, page: 0});
-
             }
         );
 
@@ -112,6 +106,10 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
             if (pageNumber <= $scope.lastPageNumber)
                 return;
 
+            // add the serie to the tracker
+            if ($scope.lastPageNumber == -1)
+                $http.post (API ('track/series'), {serieid: $routeParams.serie});
+
             $scope.lastPageNumber = pageNumber;
 
             if (selectedPage == (pages.length - 1) && $scope.next)
@@ -140,4 +138,11 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
             $scope.loaded = 'error';
         }
     );
+
+    $scope.markAsNotRead = function ()
+    {
+        $http.post (API ('track/series/' + $routeParams.serie + '/chapters/' + $routeParams.chapter + '/unread'));
+        // reset page status to hide the button
+        $scope.lastPageNumber = -1;
+    };
 }]);

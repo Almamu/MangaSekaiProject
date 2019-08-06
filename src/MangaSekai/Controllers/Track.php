@@ -120,12 +120,15 @@
                 {
                     $chapters = $chapters
                         ->filterByIdChapter ($request->getParameter ('chapterid'))
-                        ->findOne ()
-                        ->toArray ();
+                        ->findOne ();
                     
                     if ($chapters == null)
                     {
                         $chapters = array ();
+                    }
+                    else
+                    {
+                        $chapters = $chapters->toArray ();
                     }
                 }
                 else
@@ -138,5 +141,42 @@
                     ->setOutput($chapters)
                     ->printOutput();
             }
+        }
+        
+        function unread (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
+        {
+            $storage = $this->validateUser ($request);
+            
+            // remove chapter tracker
+            ChapterTrackerQuery::create ()
+               ->filterByIdUser ($storage->get ('id'))
+               ->findByIdChapter ((int) $request->getParameter ('chapterid'))
+               ->delete ();
+            
+            // check if there is any chapter tracked for this series
+            $chapters = ChapterTrackerQuery::create ()
+                ->leftJoinWithChapters ()
+                ->useChaptersQuery ()
+                    ->filterByIdSeries ((int) $request->getParameter ('id'))
+                ->endUse ()
+                ->find ();
+            
+            if ($chapters->count () == 0)
+            {
+                $serie = SeriesTrackerQuery::create ()
+                    ->filterByIdUser ($storage->get ('id'))
+                    ->filterByIdSeries ((int) $request->getParameter ('id'))
+                    ->findOne ();
+                
+                if ($serie != null)
+                {
+                    $serie->delete ();
+                }
+            }
+            
+            $response
+                ->setContentType (\MangaSekai\HTTP\Response::JSON)
+                ->setOutput (array ())
+                ->printOutput ();
         }
     };
