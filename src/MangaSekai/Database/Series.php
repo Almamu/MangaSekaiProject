@@ -30,10 +30,11 @@ class Series extends BaseSeries
         return $image;
     }
 
-    function toArrayWithAuthors ()
+    function toArrayWithAuthorsAndGenres ()
     {
         $ourdata = $this->toArray ();
         $ourdata ['Authors'] = array ();
+        $ourdata ['Genres'] = array ();
 
         $authors = SeriesStaffQuery::create ()
             ->filterByIdSerie ($this->getId ())
@@ -42,7 +43,14 @@ class Series extends BaseSeries
             ->withColumn (Map\StaffTableMap::COL_IMAGE, "Image")
             ->find ();
 
+        $genres = SeriesGenresQuery::create ()
+            ->filterByIdSerie ($this->getId ())
+            ->addJoin (Map\SeriesGenresTableMap::COL_ID_GENRE, Map\GenresTableMap::COL_ID)
+            ->withColumn (Map\GenresTableMap::COL_NAME, "Name")
+            ->find ();
+        
         $ourdata ['Authors'] = $authors->toArray ();
+        $ourdata ['Genres'] = $genres->toArray ();
 
         return $ourdata;
     }

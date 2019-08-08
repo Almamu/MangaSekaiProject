@@ -7,10 +7,13 @@ use \PDO;
 use MangaSekai\Database\Chapters as ChildChapters;
 use MangaSekai\Database\ChaptersQuery as ChildChaptersQuery;
 use MangaSekai\Database\Series as ChildSeries;
+use MangaSekai\Database\SeriesGenres as ChildSeriesGenres;
+use MangaSekai\Database\SeriesGenresQuery as ChildSeriesGenresQuery;
 use MangaSekai\Database\SeriesQuery as ChildSeriesQuery;
 use MangaSekai\Database\SeriesTracker as ChildSeriesTracker;
 use MangaSekai\Database\SeriesTrackerQuery as ChildSeriesTrackerQuery;
 use MangaSekai\Database\Map\ChaptersTableMap;
+use MangaSekai\Database\Map\SeriesGenresTableMap;
 use MangaSekai\Database\Map\SeriesTableMap;
 use MangaSekai\Database\Map\SeriesTrackerTableMap;
 use Propel\Runtime\Propel;
@@ -132,6 +135,12 @@ abstract class Series implements ActiveRecordInterface
     protected $collChapterssPartial;
 
     /**
+     * @var        ObjectCollection|ChildSeriesGenres[] Collection to store aggregation of ChildSeriesGenres objects.
+     */
+    protected $collSeriesGenress;
+    protected $collSeriesGenressPartial;
+
+    /**
      * @var        ObjectCollection|ChildSeriesTracker[] Collection to store aggregation of ChildSeriesTracker objects.
      */
     protected $collSeriesTrackers;
@@ -150,6 +159,12 @@ abstract class Series implements ActiveRecordInterface
      * @var ObjectCollection|ChildChapters[]
      */
     protected $chapterssScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildSeriesGenres[]
+     */
+    protected $seriesGenressScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -774,6 +789,8 @@ abstract class Series implements ActiveRecordInterface
 
             $this->collChapterss = null;
 
+            $this->collSeriesGenress = null;
+
             $this->collSeriesTrackers = null;
 
         } // if (deep)
@@ -901,6 +918,23 @@ abstract class Series implements ActiveRecordInterface
 
             if ($this->collChapterss !== null) {
                 foreach ($this->collChapterss as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->seriesGenressScheduledForDeletion !== null) {
+                if (!$this->seriesGenressScheduledForDeletion->isEmpty()) {
+                    \MangaSekai\Database\SeriesGenresQuery::create()
+                        ->filterByPrimaryKeys($this->seriesGenressScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->seriesGenressScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collSeriesGenress !== null) {
+                foreach ($this->collSeriesGenress as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -1154,6 +1188,21 @@ abstract class Series implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->collChapterss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collSeriesGenress) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'seriesGenress';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'series_genress';
+                        break;
+                    default:
+                        $key = 'SeriesGenress';
+                }
+
+                $result[$key] = $this->collSeriesGenress->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collSeriesTrackers) {
 
@@ -1448,6 +1497,12 @@ abstract class Series implements ActiveRecordInterface
                 }
             }
 
+            foreach ($this->getSeriesGenress() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addSeriesGenres($relObj->copy($deepCopy));
+                }
+            }
+
             foreach ($this->getSeriesTrackers() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addSeriesTracker($relObj->copy($deepCopy));
@@ -1497,6 +1552,10 @@ abstract class Series implements ActiveRecordInterface
     {
         if ('Chapters' == $relationName) {
             $this->initChapterss();
+            return;
+        }
+        if ('SeriesGenres' == $relationName) {
+            $this->initSeriesGenress();
             return;
         }
         if ('SeriesTracker' == $relationName) {
@@ -1725,6 +1784,234 @@ abstract class Series implements ActiveRecordInterface
             }
             $this->chapterssScheduledForDeletion[]= clone $chapters;
             $chapters->setSeries(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Clears out the collSeriesGenress collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addSeriesGenress()
+     */
+    public function clearSeriesGenress()
+    {
+        $this->collSeriesGenress = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collSeriesGenress collection loaded partially.
+     */
+    public function resetPartialSeriesGenress($v = true)
+    {
+        $this->collSeriesGenressPartial = $v;
+    }
+
+    /**
+     * Initializes the collSeriesGenress collection.
+     *
+     * By default this just sets the collSeriesGenress collection to an empty array (like clearcollSeriesGenress());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initSeriesGenress($overrideExisting = true)
+    {
+        if (null !== $this->collSeriesGenress && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = SeriesGenresTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collSeriesGenress = new $collectionClassName;
+        $this->collSeriesGenress->setModel('\MangaSekai\Database\SeriesGenres');
+    }
+
+    /**
+     * Gets an array of ChildSeriesGenres objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildSeries is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildSeriesGenres[] List of ChildSeriesGenres objects
+     * @throws PropelException
+     */
+    public function getSeriesGenress(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collSeriesGenressPartial && !$this->isNew();
+        if (null === $this->collSeriesGenress || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collSeriesGenress) {
+                // return empty collection
+                $this->initSeriesGenress();
+            } else {
+                $collSeriesGenress = ChildSeriesGenresQuery::create(null, $criteria)
+                    ->filterBySeries($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collSeriesGenressPartial && count($collSeriesGenress)) {
+                        $this->initSeriesGenress(false);
+
+                        foreach ($collSeriesGenress as $obj) {
+                            if (false == $this->collSeriesGenress->contains($obj)) {
+                                $this->collSeriesGenress->append($obj);
+                            }
+                        }
+
+                        $this->collSeriesGenressPartial = true;
+                    }
+
+                    return $collSeriesGenress;
+                }
+
+                if ($partial && $this->collSeriesGenress) {
+                    foreach ($this->collSeriesGenress as $obj) {
+                        if ($obj->isNew()) {
+                            $collSeriesGenress[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collSeriesGenress = $collSeriesGenress;
+                $this->collSeriesGenressPartial = false;
+            }
+        }
+
+        return $this->collSeriesGenress;
+    }
+
+    /**
+     * Sets a collection of ChildSeriesGenres objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $seriesGenress A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildSeries The current object (for fluent API support)
+     */
+    public function setSeriesGenress(Collection $seriesGenress, ConnectionInterface $con = null)
+    {
+        /** @var ChildSeriesGenres[] $seriesGenressToDelete */
+        $seriesGenressToDelete = $this->getSeriesGenress(new Criteria(), $con)->diff($seriesGenress);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->seriesGenressScheduledForDeletion = clone $seriesGenressToDelete;
+
+        foreach ($seriesGenressToDelete as $seriesGenresRemoved) {
+            $seriesGenresRemoved->setSeries(null);
+        }
+
+        $this->collSeriesGenress = null;
+        foreach ($seriesGenress as $seriesGenres) {
+            $this->addSeriesGenres($seriesGenres);
+        }
+
+        $this->collSeriesGenress = $seriesGenress;
+        $this->collSeriesGenressPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related SeriesGenres objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related SeriesGenres objects.
+     * @throws PropelException
+     */
+    public function countSeriesGenress(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collSeriesGenressPartial && !$this->isNew();
+        if (null === $this->collSeriesGenress || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collSeriesGenress) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getSeriesGenress());
+            }
+
+            $query = ChildSeriesGenresQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterBySeries($this)
+                ->count($con);
+        }
+
+        return count($this->collSeriesGenress);
+    }
+
+    /**
+     * Method called to associate a ChildSeriesGenres object to this object
+     * through the ChildSeriesGenres foreign key attribute.
+     *
+     * @param  ChildSeriesGenres $l ChildSeriesGenres
+     * @return $this|\MangaSekai\Database\Series The current object (for fluent API support)
+     */
+    public function addSeriesGenres(ChildSeriesGenres $l)
+    {
+        if ($this->collSeriesGenress === null) {
+            $this->initSeriesGenress();
+            $this->collSeriesGenressPartial = true;
+        }
+
+        if (!$this->collSeriesGenress->contains($l)) {
+            $this->doAddSeriesGenres($l);
+
+            if ($this->seriesGenressScheduledForDeletion and $this->seriesGenressScheduledForDeletion->contains($l)) {
+                $this->seriesGenressScheduledForDeletion->remove($this->seriesGenressScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildSeriesGenres $seriesGenres The ChildSeriesGenres object to add.
+     */
+    protected function doAddSeriesGenres(ChildSeriesGenres $seriesGenres)
+    {
+        $this->collSeriesGenress[]= $seriesGenres;
+        $seriesGenres->setSeries($this);
+    }
+
+    /**
+     * @param  ChildSeriesGenres $seriesGenres The ChildSeriesGenres object to remove.
+     * @return $this|ChildSeries The current object (for fluent API support)
+     */
+    public function removeSeriesGenres(ChildSeriesGenres $seriesGenres)
+    {
+        if ($this->getSeriesGenress()->contains($seriesGenres)) {
+            $pos = $this->collSeriesGenress->search($seriesGenres);
+            $this->collSeriesGenress->remove($pos);
+            if (null === $this->seriesGenressScheduledForDeletion) {
+                $this->seriesGenressScheduledForDeletion = clone $this->collSeriesGenress;
+                $this->seriesGenressScheduledForDeletion->clear();
+            }
+            $this->seriesGenressScheduledForDeletion[]= clone $seriesGenres;
+            $seriesGenres->setSeries(null);
         }
 
         return $this;
@@ -2022,6 +2309,11 @@ abstract class Series implements ActiveRecordInterface
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collSeriesGenress) {
+                foreach ($this->collSeriesGenress as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collSeriesTrackers) {
                 foreach ($this->collSeriesTrackers as $o) {
                     $o->clearAllReferences($deep);
@@ -2030,6 +2322,7 @@ abstract class Series implements ActiveRecordInterface
         } // if ($deep)
 
         $this->collChapterss = null;
+        $this->collSeriesGenress = null;
         $this->collSeriesTrackers = null;
     }
 

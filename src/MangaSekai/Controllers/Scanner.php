@@ -4,6 +4,8 @@
     use \MangaSekai\Database\StaffQuery;
     use \MangaSekai\Database\SeriesQuery;
     use \MangaSekai\Database\SeriesStaffQuery;
+    use \MangaSekai\Database\GenresQuery;
+    use \MangaSekai\Database\SeriesGenresQuery;
     
     class Scanner
     {
@@ -108,6 +110,34 @@
                             ->setIdSerie ($serie->getId ())
                             ->setIdStaff ($staff->getId ())
                             ->setRole ($info ['role'])
+                            ->save ();
+                    }
+                }
+                
+                foreach ($entry->getGenres () as $name)
+                {
+                    $genre = GenresQuery::create ()->findOneByName ($name);
+                    
+                    if ($genre == null)
+                    {
+                        $genre = new \MangaSekai\Database\Genres ();
+    
+                        $genre
+                            ->setName ($name)
+                            ->save ();
+                    }
+                    
+                    $serieGenreEntry = SeriesGenresQuery::create ()
+                        ->filterByIdSerie ($serie->getId ())
+                        ->filterByIdGenre ($genre->getId ())
+                        ->findOne ();
+                    
+                    if ($serieGenreEntry == null)
+                    {
+                        $serieGenreEntry = new \MangaSekai\Database\SeriesGenres ();
+                        $serieGenreEntry
+                            ->setIdGenre ($genre->getId ())
+                            ->setIdSerie ($serie->getId ())
                             ->save ();
                     }
                 }

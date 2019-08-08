@@ -56,6 +56,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeriesQuery rightJoinWithChapters() Adds a RIGHT JOIN clause and with to the query using the Chapters relation
  * @method     ChildSeriesQuery innerJoinWithChapters() Adds a INNER JOIN clause and with to the query using the Chapters relation
  *
+ * @method     ChildSeriesQuery leftJoinSeriesGenres($relationAlias = null) Adds a LEFT JOIN clause to the query using the SeriesGenres relation
+ * @method     ChildSeriesQuery rightJoinSeriesGenres($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SeriesGenres relation
+ * @method     ChildSeriesQuery innerJoinSeriesGenres($relationAlias = null) Adds a INNER JOIN clause to the query using the SeriesGenres relation
+ *
+ * @method     ChildSeriesQuery joinWithSeriesGenres($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the SeriesGenres relation
+ *
+ * @method     ChildSeriesQuery leftJoinWithSeriesGenres() Adds a LEFT JOIN clause and with to the query using the SeriesGenres relation
+ * @method     ChildSeriesQuery rightJoinWithSeriesGenres() Adds a RIGHT JOIN clause and with to the query using the SeriesGenres relation
+ * @method     ChildSeriesQuery innerJoinWithSeriesGenres() Adds a INNER JOIN clause and with to the query using the SeriesGenres relation
+ *
  * @method     ChildSeriesQuery leftJoinSeriesTracker($relationAlias = null) Adds a LEFT JOIN clause to the query using the SeriesTracker relation
  * @method     ChildSeriesQuery rightJoinSeriesTracker($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SeriesTracker relation
  * @method     ChildSeriesQuery innerJoinSeriesTracker($relationAlias = null) Adds a INNER JOIN clause to the query using the SeriesTracker relation
@@ -66,7 +76,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSeriesQuery rightJoinWithSeriesTracker() Adds a RIGHT JOIN clause and with to the query using the SeriesTracker relation
  * @method     ChildSeriesQuery innerJoinWithSeriesTracker() Adds a INNER JOIN clause and with to the query using the SeriesTracker relation
  *
- * @method     \MangaSekai\Database\ChaptersQuery|\MangaSekai\Database\SeriesTrackerQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \MangaSekai\Database\ChaptersQuery|\MangaSekai\Database\SeriesGenresQuery|\MangaSekai\Database\SeriesTrackerQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildSeries findOne(ConnectionInterface $con = null) Return the first ChildSeries matching the query
  * @method     ChildSeries findOneOrCreate(ConnectionInterface $con = null) Return the first ChildSeries matching the query, or a new ChildSeries object populated from the query conditions when no match is found
@@ -624,6 +634,79 @@ abstract class SeriesQuery extends ModelCriteria
         return $this
             ->joinChapters($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Chapters', '\MangaSekai\Database\ChaptersQuery');
+    }
+
+    /**
+     * Filter the query by a related \MangaSekai\Database\SeriesGenres object
+     *
+     * @param \MangaSekai\Database\SeriesGenres|ObjectCollection $seriesGenres the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildSeriesQuery The current query, for fluid interface
+     */
+    public function filterBySeriesGenres($seriesGenres, $comparison = null)
+    {
+        if ($seriesGenres instanceof \MangaSekai\Database\SeriesGenres) {
+            return $this
+                ->addUsingAlias(SeriesTableMap::COL_ID, $seriesGenres->getIdSerie(), $comparison);
+        } elseif ($seriesGenres instanceof ObjectCollection) {
+            return $this
+                ->useSeriesGenresQuery()
+                ->filterByPrimaryKeys($seriesGenres->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterBySeriesGenres() only accepts arguments of type \MangaSekai\Database\SeriesGenres or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the SeriesGenres relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildSeriesQuery The current query, for fluid interface
+     */
+    public function joinSeriesGenres($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('SeriesGenres');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'SeriesGenres');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the SeriesGenres relation SeriesGenres object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \MangaSekai\Database\SeriesGenresQuery A secondary query class using the current class as primary query
+     */
+    public function useSeriesGenresQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinSeriesGenres($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SeriesGenres', '\MangaSekai\Database\SeriesGenresQuery');
     }
 
     /**

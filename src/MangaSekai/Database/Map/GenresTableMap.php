@@ -2,8 +2,8 @@
 
 namespace MangaSekai\Database\Map;
 
-use MangaSekai\Database\Series;
-use MangaSekai\Database\SeriesQuery;
+use MangaSekai\Database\Genres;
+use MangaSekai\Database\GenresQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'series' table.
+ * This class defines the structure of the 'genres' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class SeriesTableMap extends TableMap
+class GenresTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class SeriesTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'MangaSekai.Database.Map.SeriesTableMap';
+    const CLASS_NAME = 'MangaSekai.Database.Map.GenresTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class SeriesTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'series';
+    const TABLE_NAME = 'genres';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\MangaSekai\\Database\\Series';
+    const OM_CLASS = '\\MangaSekai\\Database\\Genres';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'MangaSekai.Database.Series';
+    const CLASS_DEFAULT = 'MangaSekai.Database.Genres';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 8;
+    const NUM_COLUMNS = 2;
 
     /**
      * The number of lazy-loaded columns
@@ -69,47 +69,17 @@ class SeriesTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 8;
+    const NUM_HYDRATE_COLUMNS = 2;
 
     /**
      * the column name for the id field
      */
-    const COL_ID = 'series.id';
+    const COL_ID = 'genres.id';
 
     /**
      * the column name for the name field
      */
-    const COL_NAME = 'series.name';
-
-    /**
-     * the column name for the chapter_count field
-     */
-    const COL_CHAPTER_COUNT = 'series.chapter_count';
-
-    /**
-     * the column name for the pages_count field
-     */
-    const COL_PAGES_COUNT = 'series.pages_count';
-
-    /**
-     * the column name for the description field
-     */
-    const COL_DESCRIPTION = 'series.description';
-
-    /**
-     * the column name for the synced field
-     */
-    const COL_SYNCED = 'series.synced';
-
-    /**
-     * the column name for the image field
-     */
-    const COL_IMAGE = 'series.image';
-
-    /**
-     * the column name for the path field
-     */
-    const COL_PATH = 'series.path';
+    const COL_NAME = 'genres.name';
 
     /**
      * The default string format for model objects of the related table
@@ -123,11 +93,11 @@ class SeriesTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', 'ChapterCount', 'PagesCount', 'Description', 'Synced', 'Image', 'Path', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', 'chapterCount', 'pagesCount', 'description', 'synced', 'image', 'path', ),
-        self::TYPE_COLNAME       => array(SeriesTableMap::COL_ID, SeriesTableMap::COL_NAME, SeriesTableMap::COL_CHAPTER_COUNT, SeriesTableMap::COL_PAGES_COUNT, SeriesTableMap::COL_DESCRIPTION, SeriesTableMap::COL_SYNCED, SeriesTableMap::COL_IMAGE, SeriesTableMap::COL_PATH, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', 'chapter_count', 'pages_count', 'description', 'synced', 'image', 'path', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', ),
+        self::TYPE_COLNAME       => array(GenresTableMap::COL_ID, GenresTableMap::COL_NAME, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -137,11 +107,11 @@ class SeriesTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'ChapterCount' => 2, 'PagesCount' => 3, 'Description' => 4, 'Synced' => 5, 'Image' => 6, 'Path' => 7, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'chapterCount' => 2, 'pagesCount' => 3, 'description' => 4, 'synced' => 5, 'image' => 6, 'path' => 7, ),
-        self::TYPE_COLNAME       => array(SeriesTableMap::COL_ID => 0, SeriesTableMap::COL_NAME => 1, SeriesTableMap::COL_CHAPTER_COUNT => 2, SeriesTableMap::COL_PAGES_COUNT => 3, SeriesTableMap::COL_DESCRIPTION => 4, SeriesTableMap::COL_SYNCED => 5, SeriesTableMap::COL_IMAGE => 6, SeriesTableMap::COL_PATH => 7, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'chapter_count' => 2, 'pages_count' => 3, 'description' => 4, 'synced' => 5, 'image' => 6, 'path' => 7, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, ),
+        self::TYPE_COLNAME       => array(GenresTableMap::COL_ID => 0, GenresTableMap::COL_NAME => 1, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -154,21 +124,15 @@ class SeriesTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('series');
-        $this->setPhpName('Series');
+        $this->setName('genres');
+        $this->setPhpName('Genres');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\MangaSekai\\Database\\Series');
+        $this->setClassName('\\MangaSekai\\Database\\Genres');
         $this->setPackage('MangaSekai.Database');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 10, null);
-        $this->addColumn('name', 'Name', 'VARCHAR', true, 255, null);
-        $this->addColumn('chapter_count', 'ChapterCount', 'INTEGER', true, null, null);
-        $this->addColumn('pages_count', 'PagesCount', 'INTEGER', true, null, null);
-        $this->addColumn('description', 'Description', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('synced', 'Synced', 'INTEGER', true, 1, 0);
-        $this->addColumn('image', 'Image', 'LONGVARCHAR', false, null, null);
-        $this->addColumn('path', 'Path', 'LONGVARCHAR', true, null, '');
+        $this->addColumn('name', 'Name', 'LONGVARCHAR', true, null, null);
     } // initialize()
 
     /**
@@ -176,39 +140,7 @@ class SeriesTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Chapters', '\\MangaSekai\\Database\\Chapters', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':id_series',
-    1 => ':id',
-  ),
-), 'CASCADE', 'CASCADE', 'Chapterss', false);
-        $this->addRelation('SeriesGenres', '\\MangaSekai\\Database\\SeriesGenres', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':id_series',
-    1 => ':id',
-  ),
-), 'CASCADE', 'CASCADE', 'SeriesGenress', false);
-        $this->addRelation('SeriesTracker', '\\MangaSekai\\Database\\SeriesTracker', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':id_series',
-    1 => ':id',
-  ),
-), 'CASCADE', 'CASCADE', 'SeriesTrackers', false);
     } // buildRelations()
-    /**
-     * Method to invalidate the instance pool of all tables related to series     * by a foreign key with ON DELETE CASCADE
-     */
-    public static function clearRelatedInstancePool()
-    {
-        // Invalidate objects in related instance pools,
-        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-        ChaptersTableMap::clearInstancePool();
-        SeriesGenresTableMap::clearInstancePool();
-        SeriesTrackerTableMap::clearInstancePool();
-    }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -267,7 +199,7 @@ class SeriesTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? SeriesTableMap::CLASS_DEFAULT : SeriesTableMap::OM_CLASS;
+        return $withPrefix ? GenresTableMap::CLASS_DEFAULT : GenresTableMap::OM_CLASS;
     }
 
     /**
@@ -281,22 +213,22 @@ class SeriesTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Series object, last column rank)
+     * @return array           (Genres object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = SeriesTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = SeriesTableMap::getInstanceFromPool($key))) {
+        $key = GenresTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = GenresTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + SeriesTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + GenresTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = SeriesTableMap::OM_CLASS;
-            /** @var Series $obj */
+            $cls = GenresTableMap::OM_CLASS;
+            /** @var Genres $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            SeriesTableMap::addInstanceToPool($obj, $key);
+            GenresTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -319,18 +251,18 @@ class SeriesTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = SeriesTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = SeriesTableMap::getInstanceFromPool($key))) {
+            $key = GenresTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = GenresTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Series $obj */
+                /** @var Genres $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                SeriesTableMap::addInstanceToPool($obj, $key);
+                GenresTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -351,23 +283,11 @@ class SeriesTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(SeriesTableMap::COL_ID);
-            $criteria->addSelectColumn(SeriesTableMap::COL_NAME);
-            $criteria->addSelectColumn(SeriesTableMap::COL_CHAPTER_COUNT);
-            $criteria->addSelectColumn(SeriesTableMap::COL_PAGES_COUNT);
-            $criteria->addSelectColumn(SeriesTableMap::COL_DESCRIPTION);
-            $criteria->addSelectColumn(SeriesTableMap::COL_SYNCED);
-            $criteria->addSelectColumn(SeriesTableMap::COL_IMAGE);
-            $criteria->addSelectColumn(SeriesTableMap::COL_PATH);
+            $criteria->addSelectColumn(GenresTableMap::COL_ID);
+            $criteria->addSelectColumn(GenresTableMap::COL_NAME);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
-            $criteria->addSelectColumn($alias . '.chapter_count');
-            $criteria->addSelectColumn($alias . '.pages_count');
-            $criteria->addSelectColumn($alias . '.description');
-            $criteria->addSelectColumn($alias . '.synced');
-            $criteria->addSelectColumn($alias . '.image');
-            $criteria->addSelectColumn($alias . '.path');
         }
     }
 
@@ -380,7 +300,7 @@ class SeriesTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(SeriesTableMap::DATABASE_NAME)->getTable(SeriesTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(GenresTableMap::DATABASE_NAME)->getTable(GenresTableMap::TABLE_NAME);
     }
 
     /**
@@ -388,16 +308,16 @@ class SeriesTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(SeriesTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(SeriesTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new SeriesTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(GenresTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(GenresTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new GenresTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Series or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a Genres or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Series object or primary key or array of primary keys
+     * @param mixed               $values Criteria or Genres object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -408,27 +328,27 @@ class SeriesTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(SeriesTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(GenresTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \MangaSekai\Database\Series) { // it's a model object
+        } elseif ($values instanceof \MangaSekai\Database\Genres) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(SeriesTableMap::DATABASE_NAME);
-            $criteria->add(SeriesTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(GenresTableMap::DATABASE_NAME);
+            $criteria->add(GenresTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = SeriesQuery::create()->mergeWith($criteria);
+        $query = GenresQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            SeriesTableMap::clearInstancePool();
+            GenresTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                SeriesTableMap::removeInstanceFromPool($singleval);
+                GenresTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -436,20 +356,20 @@ class SeriesTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the series table.
+     * Deletes all rows from the genres table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return SeriesQuery::create()->doDeleteAll($con);
+        return GenresQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Series or Criteria object.
+     * Performs an INSERT on the database, given a Genres or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Series object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or Genres object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -458,22 +378,22 @@ class SeriesTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(SeriesTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(GenresTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Series object
+            $criteria = $criteria->buildCriteria(); // build Criteria from Genres object
         }
 
-        if ($criteria->containsKey(SeriesTableMap::COL_ID) && $criteria->keyContainsValue(SeriesTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SeriesTableMap::COL_ID.')');
+        if ($criteria->containsKey(GenresTableMap::COL_ID) && $criteria->keyContainsValue(GenresTableMap::COL_ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.GenresTableMap::COL_ID.')');
         }
 
 
         // Set the correct dbName
-        $query = SeriesQuery::create()->mergeWith($criteria);
+        $query = GenresQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -482,7 +402,7 @@ class SeriesTableMap extends TableMap
         });
     }
 
-} // SeriesTableMap
+} // GenresTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-SeriesTableMap::buildTableMap();
+GenresTableMap::buildTableMap();

@@ -71,13 +71,7 @@
                         ->setPagesCount (count ($pages))
                         ->save ();
                     
-                    $pagesEntry = PagesQuery::create ()->findByIdChapter ($chapterEntry->getId ());
-                    
-                    // delete all the pages and add new
-                    if ($pagesEntry->count () != 0)
-                    {
-                        $pagesEntry->delete ();
-                    }
+                    PagesQuery::create ()->filterByIdChapter ($chapterEntry->getId ())->delete ();
                     
                     foreach ($pages as $pageNumber => $path)
                     {
