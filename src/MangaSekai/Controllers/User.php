@@ -2,10 +2,74 @@
     namespace MangaSekai\Controllers;
     
     use \MangaSekai\Database\UsersQuery;
+    use \MangaSekai\Database\SettingsQuery;
     
     class User
     {
         use \MangaSekai\Controllers\Security;
+    
+        function user (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
+        {
+            $storage = $this->validateUser ($request);
+            
+            $user = UsersQuery::create ()->findOneById ($storage->get ('id'));
+            
+            if ($request->getMethod () == 'GET')
+            {
+                $response
+                    ->setContentType (\MangaSekai\HTTP\Response::JSON)
+                    ->setOutput (
+                        array (
+                            'Username' => $user->getUsername ()
+                        )
+                    )
+                    ->printOutput ();
+            }
+            else if ($request->getMethod () == 'POST')
+            {
+                $bodyData = $request->getBodyData ();
+                
+                if ($user->getPassword () != hash ('sha256', $bodyData ['OldPassword']))
+                {
+                    throw new \Exception ("Old password doesn't match");
+                }
+    
+                if (array_key_exists ('NewPassword', $bodyData) == true)
+                {
+                    if (empty ($bodyData ['NewPassword']) == true)
+                    {
+                        throw new \Exception ("New password cannot be empty");
+                    }
+                    
+                    $user->setPassword (hash ('sha256', $bodyData ['NewPassword']));
+                }
+                
+                $user
+                    ->setUsername ($bodyData ['Username'])
+                    ->save ();
+            }
+        }
+        
+        function userlist (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
+        {
+            $storage = $this->validateUser ($request);
+    
+            // check that the user can change settings first
+            $permissionSetting = SettingsQuery::create ()->findOneByName ('administrator_users');
+    
+            if (in_array ($storage->get ('id'), $permissionSetting->getValue ()) == false)
+            {
+                throw new \Exception ("Only admins allowed");
+            }
+            
+            $users = UsersQuery::create ()->find ();
+            
+            $response
+                ->setContentType (\MangaSekai\HTTP\Response::JSON)
+                ->setOutput (
+                    $users->toKeyValue ('Id', 'Username')
+                )->printOutput ();
+        }
         
         function login (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
@@ -44,12 +108,15 @@
             $storage->set ('expire_time', strtotime ('+1 day'));
             $storage->set ('id', $user->getId ());
             
+            $admins = SettingsQuery::create ()->findOneByName ('administrator_users');
+            
             $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput (
                     array (
                         'token' => $storage->getToken (),
-                        'expire_time' => $storage->get ('expire_time')
+                        'expire_time' => $storage->get ('expire_time'),
+                        'isadmin' => in_array ($user->getId (), $admins->getValue ())
                     )
                 )
                 ->printOutput();

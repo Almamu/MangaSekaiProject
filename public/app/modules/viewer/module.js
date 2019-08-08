@@ -20,7 +20,7 @@ function ($http, $location, $routeParams, $scope, $window, API, AuthenticationSe
     $scope.chapter = {};
     $scope.next = null;
     $scope.previous = null;
-    $scope.token = encodeURIComponent (AuthenticationService.getToken ());
+    $scope.token = encodeURIComponent (AuthenticationService.getSession ().token);
     $scope.lastPageNumber = -1;
     $scope.scrollPending = false;
 

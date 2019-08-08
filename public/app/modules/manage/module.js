@@ -10,30 +10,13 @@ angular.module ('mangasekai.manage', [])
             templateUrl : '/app/modules/manage/settings.html'
         });
 }])
-.directive ('pageUpload', [function ()
-{
-    return {
-        scope: {callback: '=', index: '='},
-        link: function (scope, element, attrs)
-        {
-            element.bind ('change', function (ev)
-            {
-                console.log (ev.target.files [0]);
-
-                let fileReader = new FileReader ();
-                fileReader.onloadend = function ()
-                {
-                    scope.callback (scope.index, fileReader.result);
-                };
-
-                fileReader.readAsDataURL(ev.target.files [0]);
-            });
-        }
-    }
-}])
-.controller ('SettingsController', ['$http', '$scope', 'API', function ($http, $scope, API)
+.controller ('SettingsController', ['$http', '$scope', 'API', 'AuthenticationService', function ($http, $scope, API, AuthenticationService)
 {
     $scope.folders = [];
+    $scope.userlist = [];
+    $scope.admins = [];
+    $scope.ourUsername = AuthenticationService.getSession ().username;
+
     $scope.saveFolders = function ()
     {
         $http.post (API ('settings'), {name: 'scanner_dirs', value: $scope.folders});
@@ -52,10 +35,56 @@ angular.module ('mangasekai.manage', [])
         $scope.$broadcast ('DisplayDiscovery', 'Please select the folder where your mangas are');
     };
 
+    $scope.showUserSelectDialog = function ()
+    {
+        angular.element ('#userselect').modal ('show');
+    };
+
+    $scope.saveUsers = function ()
+    {
+        $http.post (API ('settings'), {name: 'administrator_users', value: $scope.admins});
+    };
+
+    $scope.removeUser = function (index)
+    {
+        $scope.admins.splice (index, 1);
+
+        $scope.saveUsers ();
+    };
+
+    $scope.addUser = function (userid)
+    {
+        angular.element ('#userselect').modal ('hide');
+
+        // first check if the user exists
+        for (let key in $scope.admins)
+        {
+            if ($scope.admins [key] == userid)
+                return;
+        }
+
+        $scope.admins.push (userid);
+        $scope.saveUsers ();
+    };
+
     $http.get (API ('settings') + '?name=' + encodeURIComponent ('scanner_dirs')).then (
         function (result)
         {
             $scope.folders = result.data.Value;
+        }
+    );
+
+    $http.get (API ('user/list')).then (
+        function (result)
+        {
+            $scope.userlist = result.data;
+        }
+    );
+
+    $http.get (API ('settings') + '?name=' + encodeURIComponent ('administrator_users')).then (
+        function (result)
+        {
+            $scope.admins = result.data.Value;
         }
     );
 
@@ -70,52 +99,6 @@ angular.module ('mangasekai.manage', [])
     {
         folderSelectedEvent ();
     });
-}])
-.controller ('SeriesController', ['$http', '$scope', 'API', function ($http, $scope, API)
-{
-    $scope.list = {pagination: {}};
-    $scope.newSerie = function ()
-    {
-        $scope.$broadcast ('DisplayCreationWindow');
-    };
-
-    $http.get (API ('series')).then (
-        function (result)
-        {
-            if (result.data.count > 0)
-            {
-                $scope.list.pagination = result.data;
-            }
-        }
-    );
-}])
-.controller ('CreateNewSerieController', ['$http', '$rootScope', '$scope', 'API', 'EDITOR_MODE_NEW_SERIE', function ($http, $rootScope, $scope, API, EDITOR_MODE_NEW_SERIE)
-{
-    $scope.selectModeManual = function ()
-    {
-        $scope.hideModal ();
-
-        $rootScope.$broadcast ('SetEditorMode', EDITOR_MODE_NEW_SERIE);
-        $rootScope.$broadcast ('DisplayEditor');
-    };
-    $scope.selectModeScrapper = function ()
-    {
-        $scope.hideModal ();
-
-        $rootScope.$broadcast ('DisplayDiscovery');
-    };
-    $scope.$on ('DisplayCreationWindow', function ()
-    {
-        $scope.showModal ();
-    });
-    $scope.showModal = function ()
-    {
-        angular.element ('#creator').modal ('show');
-    };
-    $scope.hideModal = function ()
-    {
-        angular.element ('#creator').modal ('hide');
-    };
 }])
 .controller ('DiscoveryController', ['$http', '$scope', 'API', function ($http, $scope, API)
 {
@@ -167,94 +150,4 @@ angular.module ('mangasekai.manage', [])
             }
         );
     }
-}])
-.controller ('EditorController', ['$http', '$scope', 'API', 'EDITOR_MODE_NEW_SERIE', function ($http, $scope, API, EDITOR_MODE_NEW_SERIE)
-{
-    $scope.serie = {
-        Name: '',
-        Description: '',
-        Chapters: []
-    };
-    $scope.chapterSelected = {};
-    $scope.mode = EDITOR_MODE_NEW_SERIE;
-    $scope.screen = "list";
-    $scope.$on ('SetEditorMode', function (ev, mode)
-    {
-        $scope.setMode (mode);
-    });
-    $scope.$on ('DisplayEditor', function ()
-    {
-        $scope.showModal ();
-    });
-
-    $scope.setMode = function (mode)
-    {
-        $scope.mode = mode;
-
-        if ($scope.mode == EDITOR_MODE_NEW_SERIE)
-        {
-            angular.extend ($scope.serie, {
-                Name: 'Bakuman',
-                Description: '',
-                Chapters: []
-            });
-        }
-    };
-    $scope.showModal = function ()
-    {
-        angular.element ('#editor').modal ('show');
-    };
-    $scope.addChapter = function ()
-    {
-        let chapterNumber = 1;
-
-        if ($scope.serie.Chapters.length > 0)
-        {
-            chapterNumber = $scope.serie.Chapters [$scope.serie.Chapters.length - 1].Number + 1;
-        }
-
-        $scope.serie.Chapters.push ({Name: '', Number: chapterNumber, Pages: []});
-    };
-    $scope.editChapter = function (index)
-    {
-        $scope.screen = 'edit';
-        $scope.chapterSelected = $scope.serie.Chapters [index];
-    };
-    $scope.removeChapter = function (index)
-    {
-        $scope.serie.Chapters.splice (index, 1);
-    };
-    $scope.listChapters = function ()
-    {
-        $scope.screen = 'list';
-    };
-
-    function recalculatePages ()
-    {
-        let index = 0;
-
-        angular.forEach ($scope.chapterSelected.Pages, function (page)
-        {
-            page.number = ++index;
-        });
-    }
-
-    $scope.addPage = function ()
-    {
-        $scope.chapterSelected.Pages.push ({data: '', number: 0});
-
-        recalculatePages ();
-    };
-    $scope.removePage = function (index)
-    {
-        $scope.chapterSelected.Pages.splice (index, 1);
-        recalculatePages ();
-    };
-    $scope.updatePageContent = function (index, content)
-    {
-        console.log (index);
-
-        $scope.chapterSelected.Pages [index].data = content;
-        $scope.$apply ();
-    };
 }]);

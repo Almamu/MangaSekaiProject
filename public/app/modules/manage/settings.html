@@ -1,6 +1,7 @@
 <div id="wrapper">
     <div ng-include="'/app/modules/dashboard/sidebar.html'"></div>
     <div ng-include="'/app/modules/manage/search.html'"></div>
+    <div ng-include="'/app/modules/manage/select-user.html'"></div>
 
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
@@ -23,6 +24,7 @@
             </nav>
             <div class="container-fluid">
                 <h2>Library settings</h2>
+                <hr />
                 <p>Here you can specify the folders to be used by the scanner to find and display your local manga collection. The changes won't take effect until the library is refreshed from the Dashboard</p>
                 <table class="table table-striped table-hover table-bordered">
                     <thead>
@@ -46,6 +48,33 @@
                 </table>
                 <div class="text-right">
                     <button class="btn btn-success" ng-click="showFolderDialog ()"><i class="fa fa-plus"></i> Add folder</button>
+                </div>
+                <h2>Administrator users</h2>
+                <hr />
+                <p>These users will be able to manage the library settings and update the library from the dashboard</p>
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Username</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="userid in admins track by $index" class="item">
+                        <td class="text-center header-small">
+                            <i class="fa fa-user"></i>
+                        </td>
+                        <td>{{ userlist [userid] }}</td>
+                        <td class="header-small">
+                            <button class="btn btn-sm btn-danger" ng-click="removeUser ($index)" ng-hide="admins.length == 1 || userlist [userid] == ourUsername"><i class="fa fa-times"></i> Remove user</button>
+                            <span ng-show="admins.length == 1 || userlist [userid] == ourUsername">No actions available</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="text-right">
+                    <button class="btn btn-success" ng-click="showUserSelectDialog ()"><i class="fa fa-plus"></i> Add user</button>
                 </div>
             </div>
         </div>

@@ -6,9 +6,6 @@
     
     class Chapters
     {
-        /** @var int Max records to show per page */
-        const RECORDS_PER_PAGE = 20;
-    
         use \MangaSekai\JSON\PaginationResponse;
         use \MangaSekai\Controllers\Security;
     

@@ -1,0 +1,56 @@
+<div id="wrapper">
+    <div ng-include="'/app/modules/dashboard/sidebar.html'"></div>
+
+    <div ng-include="'/app/modules/profile/modals/change-success.html'"></div>
+    <div ng-include="'/app/modules/profile/modals/change-fail.html'"></div>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <!-- Sidebar Toggle (Topbar) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <h4 class="my-2 mr-md-auto">User settings</h4>
+                <!-- Topbar Search -->
+                <!--
+                <form class="d-none d-sm-inline-block form-inline ml-auto mr-md-3 my-2 my-md-0 mw-100 navbar-search text-right">
+                    <button type="button" class="btn btn-primary" ng-click="newSerie ()">
+                        <i class="fa fa-plus"></i> Add serie
+                    </button>
+                </form>
+                -->
+            </nav>
+            <div class="container-fluid">
+                <h2>Account details</h2>
+                <hr />
+                <p>Here you can change your username and/or password</p>
+                <form name="account" ng-submit="passwordChange ()">
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputEmail3" placeholder="Username" ng-model="passwordChangeData.Username">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="oldpassword" class="col-sm-2 col-form-label">Old password</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="oldpassword" placeholder="Old password" ng-model="passwordChangeData.OldPassword">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="newpassword" class="col-sm-2 col-form-label">New password</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="newpassword" placeholder="New password" ng-model="passwordChangeData.NewPassword">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">
+                        Change details
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

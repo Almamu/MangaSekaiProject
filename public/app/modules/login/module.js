@@ -71,6 +71,7 @@ function ($q, $location)
 
                     // save token
                     $localStorage.session = result.data;
+                    $localStorage.session.username = username;
                     // then setup the needed headers
                     setupHttpHeaders ();
                     // finally continue the callback hierarchy
@@ -95,14 +96,14 @@ function ($q, $location)
 
             return moment.utc ().isBefore (moment.unix ($localStorage.session.expire_time));
         },
-        getToken: function ()
+        getSession: function ()
         {
             if (this.hasSession () == true)
             {
-                return $localStorage.session.token;
+                return $localStorage.session;
             }
 
-            return '';
+            return {};
         },
         clearSession: function ()
         {

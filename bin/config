@@ -42,3 +42,10 @@
         ->setUsername ('admin')
         ->setPassword (hash('sha256', 'admin'))
         ->save ();
+
+    $setting = new \MangaSekai\Database\Settings ();
+
+    $setting
+        ->setName ('administrator_users')
+        ->setValue (array ($user->getId ()))
+        ->save ();

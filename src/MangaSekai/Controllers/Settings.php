@@ -9,8 +9,16 @@
         
         function list (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
-            $this->validateUser ($request);
+            $storage = $this->validateUser ($request);
             $bodyData = $request->getBodyData ();
+            
+            // check that the user can change settings first
+            $permissionSetting = SettingsQuery::create ()->findOneByName ('administrator_users');
+            
+            if (in_array ($storage->get ('id'), $permissionSetting->getValue ()) == false)
+            {
+                throw new \Exception ("Only admins allowed");
+            }
             
             if ($request->getMethod () == 'POST')
             {

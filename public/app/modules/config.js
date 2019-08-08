@@ -12,7 +12,8 @@ angular.module ('mangasekai', [
     'mangasekai.login',
     'mangasekai.dashboard',
     'mangasekai.viewer',
-    'mangasekai.manage'
+    'mangasekai.manage',
+    'mangasekai.profile'
 ])
 .config (['$routeProvider', 'markedProvider', function ($routeProvider, markedProvider)
 {
