@@ -67,5 +67,9 @@
         '/files/' => array (
             'controller' => '\\MangaSekai\\Controllers\\Files',
             'function' => 'search'
+        ),
+        '/genres/:id/' => array (
+            'controller' => '\\MangaSekai\\Controllers\\Genres',
+            'function' => 'series'
         )
     );

@@ -18,6 +18,11 @@ angular.module ('mangasekai.dashboard', [])
             controller: 'StaffController',
             templateUrl: '/app/modules/dashboard/staff.html'
         }
+    ).when (
+        '/genres/:id/', {
+            controller: 'GenresController',
+            templateUrl: '/app/modules/dashboard/genres.html'
+        }
     );
 }])
 .directive ('mangaEntry', [function ()
@@ -112,4 +117,16 @@ angular.module ('mangasekai.dashboard', [])
             $scope.list = result.data;
         }
     );
+}])
+.controller ('GenresController', ['$http', '$routeParams', '$scope', 'API', function ($http, $routeParams, $scope, API)
+{
+    $scope.list = {pagination: {}};
+
+    $http.get (API ('genres/' + $routeParams.id)).then (
+        function (result)
+        {
+            $scope.list = result.data;
+        }
+    );
 }]);
+;

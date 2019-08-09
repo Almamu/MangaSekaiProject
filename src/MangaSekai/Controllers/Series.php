@@ -11,6 +11,7 @@
         function list (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $this->validateUser ($request);
+            
             $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
                 ->setOutput (

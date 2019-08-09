@@ -1,0 +1,21 @@
+<div id="wrapper">
+    <div ng-include="'/app/modules/dashboard/sidebar.html'"></div>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <!-- Sidebar Toggle (Topbar) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <h4 class="my-2 mr-md-auto">{{ list.Staff.Name }}</h4>
+            </nav>
+            <div class="container-fluid">
+                <span ng-repeat="manga in list" class="item">
+                    <manga-entry entry="manga"></manga-entry>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
