@@ -9,10 +9,21 @@
                     <i class="fa fa-bars"></i>
                 </button>
 
-                <h4 class="my-2 mr-md-auto">{{ list.Staff.Name }}</h4>
+                <h4 class="my-2 mr-md-auto">{{ list.Genre.Name }}</h4>
+                <!-- Topbar Search -->
+                <form class="d-none d-sm-flex form-inline ml-auto mr-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" ng-model="search.Name" ng-model-options="{debounce: 200}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </nav>
             <div class="container-fluid">
-                <span ng-repeat="manga in list" class="item">
+                <span ng-repeat="manga in list.Series | filter:search" class="item">
                     <manga-entry entry="manga"></manga-entry>
                 </span>
             </div>

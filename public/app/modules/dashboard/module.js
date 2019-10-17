@@ -63,6 +63,7 @@ angular.module ('mangasekai.dashboard', [])
 {
     $scope.list = {};
     $scope.tracking = [];
+    $scope.search = {Name: ''};
 
     $http.get (API ('series')).then (
         function (result)
@@ -121,6 +122,7 @@ angular.module ('mangasekai.dashboard', [])
 .controller ('GenresController', ['$http', '$routeParams', '$scope', 'API', function ($http, $routeParams, $scope, API)
 {
     $scope.list = {pagination: {}};
+    $scope.search = {Name: ''};
 
     $http.get (API ('genres/' + $routeParams.id)).then (
         function (result)

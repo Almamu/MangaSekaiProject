@@ -3,6 +3,7 @@
     
     use \MangaSekai\Database\SeriesGenresQuery;
     use \MangaSekai\Database\SeriesQuery;
+    use \MangaSekai\Database\GenresQuery;
     
     class Genres
     {
@@ -12,6 +13,8 @@
         {
             $this->validateUser ($request);
             
+            $genre = GenresQuery::create ()->findOneById ((int) $request->getParameter ('id'));
+            
             $series = SeriesQuery::create ()
                 ->useSeriesGenresQuery ()
                     ->filterByIdGenre ($request->getParameter ('id'))
@@ -20,7 +23,7 @@
             
             $response
                 ->setContentType (\MangaSekai\HTTP\Response::JSON)
-                ->setOutput ($series->toArray ())
+                ->setOutput (array ('Genre' => $genre->toArray (), 'Series' => $series->toArray ()))
                 ->printOutput ();
         }
     };

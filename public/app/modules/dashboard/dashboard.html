@@ -14,7 +14,7 @@
                 <form class="d-none d-sm-flex form-inline ml-auto mr-md-3 my-2 my-md-0 mw-100 navbar-search">
                     <a ng-show="performScan" href="#" class="btn" ng-click="performScan ()" data-toggle="tooltip" data-placement="bottom" title="Scan directories"><i class="fa fa-sync-alt"></i></a>
                     <div class="input-group">
-                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" ng-model="search.Name" ng-model-options="{debounce: 200}">
                         <div class="input-group-append">
                             <button class="btn btn-primary" type="button">
                                 <i class="fas fa-search fa-sm"></i>
@@ -31,7 +31,7 @@
                 </span>
 
                 <h4>Discover</h4>
-                <span ng-repeat="manga in list" class="item">
+                <span ng-repeat="manga in list | filter:search" class="item">
                     <manga-entry entry="manga"></manga-entry>
                 </span>
             </div>
