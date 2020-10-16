@@ -10,6 +10,9 @@
         function get (\MangaSekai\HTTP\Request $request, \MangaSekai\HTTP\Response $response)
         {
             $this->validateUser ($request);
+
+            /** @var boolean $isTemporal Indicates if a temporal file had to be created to access it */
+            $isTemporal = false;
             
             $chapterId = $request->getParameter ('id');
             $pageNumber = $request->getParameter ('number');
@@ -20,12 +23,34 @@
                               ->findOne ();
             
             if ($page == null)
-            {
                 throw new \Exception ('Cannot find page', \MangaSekai\API\ErrorCodes::UNKNOWN_PAGE);
+
+            $path = $page->getPath ();
+
+            // first check if the page's path is special and extract the file off the container
+            if (strpos ($page->getPath (), ":/") !== false && class_exists (\ZipArchive::class) === true)
+            {
+                $parts = explode (":/", $path);
+
+                // create a temporal file as output
+                $path = tempnam (sys_get_temp_dir (), 'mangasekai');
+
+                $archive = new \ZipArchive;
+
+                if ($archive->open ($parts [0]) == false)
+                    throw new \Exception ("Cannot open the compressed zip file", \MangaSekai\API\ErrorCodes::UNABLE_TO_OPEN_FILE);
+
+                // write the zip's contents to the temporal file
+                file_put_contents ($path, $archive->getFromName ($parts [1]));
+
+                // close the archive again
+                $archive->close ();
+
+                $isTemporal = true;
             }
-            
+
             // find page first
-            $imageType = exif_imagetype ($page->getPath ());
+            $imageType = exif_imagetype ($path);
 
             switch ($imageType)
             {
@@ -50,7 +75,11 @@
             }
             
             $response
-                ->setOutput (file_get_contents ($page->getPath ()))
+                ->setOutput (file_get_contents ($path))
                 ->printOutput ();
+
+            // if the file was temporal, remove it off the disk
+            if ($isTemporal == true)
+                unlink ($path);
         }
     }

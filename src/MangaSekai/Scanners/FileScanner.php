@@ -175,11 +175,11 @@
     
                 $path = realpath ($folder) . '/' . $entry;
     
-                // ignore non-folders here
-                if (is_dir ($path) == false)
-                    continue;
-    
-                $chapters [(string) ((float) reset ($matches))] = $this->scanChapter ($path, (float) reset ($matches));
+                // only scan zips and folders
+                if (is_dir ($path) == true)
+                    $chapters [(string) ((float) reset ($matches))] = $this->scanChapter ($path, (float) reset ($matches));
+                elseif (strpos ($path, ".zip") == (strlen ($path) - strlen (".zip")))
+                    $chapters [(string) ((float) reset ($matches))] = $this->scanZipChapter ($path, (float) reset ($matches));
             }
     
             closedir ($dir);
@@ -205,6 +205,35 @@
             }
             
             closedir ($dir);
+            return $pages;
+        }
+
+        private function scanZipChapter (string $archive, float $chapter)
+        {
+            // ensure the zip extension is installed first
+            if (class_exists (\ZipArchive::class) === false)
+                return array ();
+
+            $zip = new \ZipArchive;
+            $zip->open ($archive, \ZipArchive::RDONLY);
+
+            // get the number of files available on the zip and iterate through them
+            $count = $zip->count ();
+
+            for ($i = 0; $i < $count; $i ++)
+            {
+                $entry = $zip->getNameIndex ($i);
+
+                preg_match_all ('/[0-9]+/', $entry, $matches);
+
+                if (count ($matches [0]) == 0)
+                    continue;
+
+                $pages [(int) end ($matches [0])] = realpath ($archive) . ":/" . $entry;
+            }
+
+            $zip->close ();
+
             return $pages;
         }
     };

@@ -12,4 +12,5 @@
         const CANNOT_FIND_MATCH = 600;
         const UNKNOWN_IMAGE_FORMAT = 800;
         const UNKNOWN_PAGE = 400;
+        const UNABLE_TO_OPEN_FILE = 500;
     };

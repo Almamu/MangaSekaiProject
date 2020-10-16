@@ -3,7 +3,7 @@
     "description": "A self-hosted manga reader",
     "type": "project",
     "require": {
-        "php": ">7.3",
+        "php": ">=7.3",
         "propel/propel": "^2.0@dev",
         "ext-json": "*",
         "ramsey/uuid": "^4.0@dev",
@@ -22,6 +22,9 @@
             "email": "almamu@almamu.com"
         }
     ],
+    "suggest": {
+        "ext-zip": "support for .zip compressed chapters"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "classmap": ["src/"]
