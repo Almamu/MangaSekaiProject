@@ -210,12 +210,14 @@
 
         private function scanZipChapter (string $archive, float $chapter)
         {
+            $pages = array ();
+
             // ensure the zip extension is installed first
             if (class_exists (\ZipArchive::class) === false)
                 return array ();
 
             $zip = new \ZipArchive;
-            $zip->open ($archive, \ZipArchive::RDONLY);
+            $zip->open ($archive);
 
             // get the number of files available on the zip and iterate through them
             $count = $zip->count ();
@@ -223,6 +225,10 @@
             for ($i = 0; $i < $count; $i ++)
             {
                 $entry = $zip->getNameIndex ($i);
+
+                // ignore __MACOSX entries
+                if (strpos ($entry, "__MACOSX/") === 0)
+                    continue;
 
                 preg_match_all ('/[0-9]+/', $entry, $matches);
 

@@ -12,7 +12,7 @@
                     <button class="btn" ng-hide="lastPageNumber == -1" ng-click="markAsNotRead ()" data-toggle="tooltip" data-placement="bottom" title="Mark chapter as not read"><i class="fa fa-eye-slash"></i></button>
                 </form>
             </nav>
-            <div class="container-fluid text-center">
+            <div class="container text-center">
                 <div ng-show="loaded == 'loading'">
                     Loading...
                 </div>
@@ -28,8 +28,8 @@
                         </div>
                     </div>
 
-                    <div ng-repeat="page in pages" class="page-container mb-2">
-                        <img ng-image-appear
+                    <div ng-repeat="page in pages" class="row mb-2">
+                        <img class="embed-responsive" ng-image-appear
                              responsive
                              transition-duration="1s" lazy-img="{{ page }}?token={{ token }}" />
                     </div>

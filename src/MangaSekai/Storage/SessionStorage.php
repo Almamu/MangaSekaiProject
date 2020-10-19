@@ -10,12 +10,10 @@
         
         function __construct (string $token)
         {
+            // session names can only be alphanumeric
             $this->token = $token;
 
-            if (session_name () != $token)
-            {
-                session_name ($token);
-            }
+            session_name (md5 ($token));
             
             session_start ();
         }
