@@ -101,7 +101,7 @@
             }
             
             // user is correct, create new session
-            $storage =  new \MangaSekai\Storage\SessionStorage (
+            $storage = new \MangaSekai\Storage\SessionStorage (
                 \MangaSekai\Storage\SessionStorage::generateToken ()
             );
             
