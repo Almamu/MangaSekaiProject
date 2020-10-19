@@ -142,14 +142,20 @@
                     continue;
                 
                 $path = realpath ($folder) . '/' . $entry;
-                
-                // ignore non-folders here
-                if (is_dir ($path) == false)
-                    continue;
-                
-                $series [$entry] = array (
-                    'chapters' => $this->scanSerie ($path, $entry)
-                );
+
+                // if the path has a .zip extension at the end then the entry should have that stripped off
+                if (strpos ($path, ".zip") == (strlen ($path) - strlen (".zip")))
+                {
+                    $entry = substr ($entry, 0, strpos ($entry, ".zip"));
+
+                    $series [$entry] = array (
+                        'chapters' => $this->scanZipSerie ($path, $entry)
+                    );
+                }
+                elseif (is_dir ($path) == true)
+                    $series [$entry] = array (
+                        'chapters' => $this->scanSerie ($path, $entry)
+                    );
             }
             
             closedir ($dir);
@@ -165,12 +171,8 @@
             {
                 if ($entry == '.' || $entry == '..')
                     continue;
-                
                 // extract number of chapter from the entry name
-                preg_match ('/[0-9.]+/', $entry, $matches);
-                
-                // this chapter doesn't include any number in it
-                if (count ($matches) == 0)
+                if (preg_match ('/[0-9.]+/', $entry, $matches) == 0)
                     continue;
     
                 $path = realpath ($folder) . '/' . $entry;
@@ -185,6 +187,39 @@
             closedir ($dir);
             return $chapters;
         }
+
+        private function scanZipSerie (string $zipfile, string $serieName)
+        {
+            $chapters = array ();
+
+            // open the zip file
+            $zip = new \ZipArchive;
+            $zip->open ($zipfile);
+
+            $count = $zip->count ();
+
+            // get the number of files available on the zip and iterate through them
+            for ($i = 0; $i < $count; $i ++)
+            {
+                $entry = $zip->getNameIndex ($i);
+
+                // ignore __MACOSX entries
+                if (strpos ($entry, "__MACOSX/") === 0)
+                    continue;
+                if (preg_match_all ('/[0-9]+/', $entry, $matches) < 2)
+                    continue;
+
+                $chapterNumber = (string) ((float) $matches [0] [0]);
+                $pageNumber = (int) end ($matches [0]);
+
+                if (array_key_exists ($chapterNumber, $chapters) === false)
+                    $chapters [$chapterNumber] = array ();
+
+                $chapters [$chapterNumber] [$pageNumber] = realpath ($zipfile) . ':/' . $entry;
+            }
+
+            return $chapters;
+        }
         
         private function scanChapter (string $folder, float $chapter)
         {
@@ -195,9 +230,8 @@
             {
                 if ($entry == '.' || $entry == '..')
                     continue;
-                
-                preg_match_all ('/[0-9]+/', $entry, $matches);
-                
+                if (preg_match_all ('/[0-9]+/', $entry, $matches) == 0)
+                    continue;
                 if (count ($matches [0]) == 0)
                     continue;
                 
@@ -229,9 +263,8 @@
                 // ignore __MACOSX entries
                 if (strpos ($entry, "__MACOSX/") === 0)
                     continue;
-
-                preg_match_all ('/[0-9]+/', $entry, $matches);
-
+                if (preg_match_all ('/[0-9]+/', $entry, $matches) == 0)
+                    continue;
                 if (count ($matches [0]) == 0)
                     continue;
 

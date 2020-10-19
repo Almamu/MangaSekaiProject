@@ -70,4 +70,21 @@ Right now Manga Sekai Project expects the following folder structure:
         - 4.jpg
         - ...
         
-The chapter's folder name doesn't really matter as long as there is a number in it. The same happens with the page files,
+The chapter's folder name doesn't really matter as long as there is a number in it. The same happens with the page files.
+Any of the folders can be a zip, so these two structures should also work:
+- Manga Name.zip
+    - Chapter 1
+        - 1.jpg 
+        - 2.jpg
+        - 3.jpg
+        - 4.jpg
+        - ...
+        
+or
+- Manga Name
+    - Chapter 1.zip
+        - 1.jpg 
+        - 2.jpg
+        - 3.jpg
+        - 4.jpg
+        - ...
