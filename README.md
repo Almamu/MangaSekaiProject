@@ -1,3 +1,5 @@
+**IMPORTANT**: THIS PROJECT IS IN ARCHIVE MODE AS A PROPER REWRITE FOR BOTH THE BACKEND AND FRONTEND HAS STARTED TO TAKE IT TO THE NEXT LEVEL.
+
 ![logo](doc/img/logo.png)
 
 This project uses bootstrap template from https://startbootstrap.com/themes/sb-admin-2/
